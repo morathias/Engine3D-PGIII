@@ -26,10 +26,10 @@ bool Pacman::init(Renderer& rkRenderer){
 
 	camera = new Camera();
 	
-	camera->setPos(0, 0, -500);
+	camera->setPos(0, 0, -10);
 
 	_importer = new Importer(rkRenderer);
-	if (!_importer->importScene("Assets/sample_scene.dae", _root))
+	if (!_importer->importScene("Assets/DemoTp8v2.dae", _root))
 		cout << "no se cargo escena";
 
 	nodo1 = new Nodo();
@@ -137,8 +137,8 @@ void Pacman::frame(Renderer& rkRenderer, Input& input, pg1::Timer& timer){
 	}
 
 	_root.updateBV();
-	CollisionResult col = camera->getFrustum().aabbVsFrustum(_root.getAABB());
-	_root.draw(rkRenderer, col, camera->getFrustum());
+	//CollisionResult col = camera->getFrustum().aabbVsFrustum(_root.getAABB());
+	_root.draw(rkRenderer, PartiallyInside, camera->getFrustum());
 
 	_max->updateBV();
 	_min->updateBV();
@@ -151,6 +151,11 @@ void Pacman::frame(Renderer& rkRenderer, Input& input, pg1::Timer& timer){
 	{
 		_text += names[i]+"\n";
 	}
+
+	int totalVertexCount = 0;
+	_root.updatePolygons(totalVertexCount);
+	_text += "vertex Count: " + to_string(totalVertexCount) + "\n";
+	_text += "triangle count: " + to_string(totalVertexCount / 3);
 
 	_screenText->setText(_text);
 	_screenText->display(rkRenderer);

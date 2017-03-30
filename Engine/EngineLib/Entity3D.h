@@ -51,6 +51,7 @@ public:
 
 	DllExport void setParent(Nodo* parent);
 	DllExport const Matrix& worldMatrix() const;
+	DllExport void setLocalMatrix(float matrix[4][4]);
 	DllExport virtual void updateWorldTransformation();
 	DllExport virtual void draw(Renderer& renderer, CollisionResult parentResult,
 								const Frustum& frustum) = 0;
@@ -60,6 +61,7 @@ public:
 	const Vector3* getPoints() const;
 	DllExport virtual void getNames(std::vector<std::string>& names) = 0;
 	DllExport virtual void updateNames(std::vector<std::string>& names, int& entityIndex) = 0;
+	DllExport virtual void updatePolygons(int& meshPolygons) = 0;
 	DllExport virtual Entity3D& findEntity(std::string name);
 
 protected:

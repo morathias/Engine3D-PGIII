@@ -26,15 +26,22 @@ bool Importer::processNode(Nodo& nodo, aiNode& assimpNode, const aiScene& scene)
 	nodo.setName(assimpNode.mName.C_Str());
 	cout << nodo.getName() << endl;
 
-	aiVector3t<float> position, scaling;
+	/*aiVector3t<float> position, scaling;
 	aiQuaterniont<float> rotation;
-	assimpNode.mTransformation.Decompose(scaling, rotation, position);
+	assimpNode.mTransformation.Decompose(scaling, rotation, position);*/
 
-	nodo.setPosX(position.x);
+	float matrix[4][4] = { assimpNode.mTransformation.a1, assimpNode.mTransformation.a2, assimpNode.mTransformation.a3, assimpNode.mTransformation.a4,
+							assimpNode.mTransformation.b1, assimpNode.mTransformation.b2, assimpNode.mTransformation.b3, assimpNode.mTransformation.b4,
+							assimpNode.mTransformation.c1, assimpNode.mTransformation.c2, assimpNode.mTransformation.c3, assimpNode.mTransformation.c4,
+							assimpNode.mTransformation.d1, assimpNode.mTransformation.d2, assimpNode.mTransformation.d3, assimpNode.mTransformation.d4 };
+
+	nodo.setLocalMatrix(matrix);
+
+	/*nodo.setPosX(position.x);
 	nodo.setPosY(position.y);
 	nodo.setPosZ(position.z);
 	nodo.setScale(scaling.x, scaling.y, scaling.z);
-	nodo.setRotation(rotation.x, rotation.y, rotation.z);
+	nodo.setRotation(rotation.x, rotation.y, rotation.z);*/
 
 	for (size_t j = 0; j < assimpNode.mNumMeshes; j++){
 		Mesh& mesh = processMesh(*scene.mMeshes[assimpNode.mMeshes[j]], assimpNode, scene);
@@ -59,6 +66,7 @@ Mesh& Importer::processMesh(aiMesh& assimpMesh, aiNode& assimpNode, const aiScen
 	Mesh* mesh = new Mesh(_renderer);
 	string name = assimpNode.mName.C_Str();
 	mesh->setName(name + "_mesh");
+	
 	cout << mesh->getName() << endl;
 	TexturedVertex* verts = new TexturedVertex[assimpMesh.mNumVertices];
 	if (assimpMesh.HasTextureCoords(0)){
@@ -95,16 +103,22 @@ Mesh& Importer::processMesh(aiMesh& assimpMesh, aiNode& assimpNode, const aiScen
 
 	mesh->setMeshData(verts, TRIANGLELIST, assimpMesh.mNumVertices, indices, numIndices);
 	mesh->buildAABB();
-	aiVector3t<float> position, scaling;
+	/*aiVector3t<float> position, scaling;
 	aiQuaterniont<float> rotation;
-	assimpNode.mTransformation.Decompose(scaling, rotation, position);
+	assimpNode.mTransformation.Decompose(scaling, rotation, position);*/
 	
-	mesh->setPosX(position.x);
+	float matrix [4][4] = {assimpNode.mTransformation.a1, assimpNode.mTransformation.a2, assimpNode.mTransformation.a3, assimpNode.mTransformation.a4,
+						   assimpNode.mTransformation.b1, assimpNode.mTransformation.b2, assimpNode.mTransformation.b3, assimpNode.mTransformation.b4,
+						   assimpNode.mTransformation.c1, assimpNode.mTransformation.c2, assimpNode.mTransformation.c3, assimpNode.mTransformation.c4,
+						   assimpNode.mTransformation.d1, assimpNode.mTransformation.d2, assimpNode.mTransformation.d3, assimpNode.mTransformation.d4};
+	
+	mesh->setGlobal(matrix);
+	/*mesh->setPosX(position.x);
 	mesh->setPosY(position.y);
 	mesh->setPosZ(position.z);
 	mesh->setScale(scaling.x, scaling.y, scaling.z);
 	mesh->setRotation(rotation.x, rotation.y, rotation.z);
-	cout << mesh->posX() << " " << mesh->posY() << " " << mesh->posZ() << endl;
+	cout << mesh->posX() << " " << mesh->posY() << " " << mesh->posZ() << endl;*/
 	
 	mesh->updateWorldTransformation();
 	mesh->updateBV();

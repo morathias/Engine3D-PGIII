@@ -124,6 +124,11 @@ void Nodo::updateNames(std::vector<std::string>& names, int& entityIndex){
 	}
 }
 //=====================================================================
+void Nodo::updatePolygons(int& meshPolygons) {
+	for (size_t i = 0; i < _childs.size(); i++)
+		_childs[i]->updatePolygons(meshPolygons);
+}
+//=====================================================================
 Entity3D& Nodo::findEntity(string name){
 	for (size_t i = 0; i < _childs.size(); i++){
 		if (_childs[i]->getName() == name)
@@ -131,3 +136,4 @@ Entity3D& Nodo::findEntity(string name){
 	}
 	//return _childs[i]->findEntity(name);
 }
+//=====================================================================

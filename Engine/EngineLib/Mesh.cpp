@@ -34,6 +34,8 @@ void Mesh::setMeshData(const TexturedVertex* texVertex,
 
 	_renderer.setCurrentIndexBuffer(_indexBuffer);
 	_renderer.setCurrentVertexBuffer(_vertexBuffer);
+
+	_vertexCount = uiVertexCount;
 }
 //=====================================================
 void Mesh::setMeshData(const Vertex* texVertex,
@@ -52,6 +54,8 @@ void Mesh::setMeshData(const Vertex* texVertex,
 
 	_renderer.setCurrentIndexBuffer(_indexBuffer);
 	_renderer.setCurrentVertexBuffer(_vertexBuffer);
+
+	_vertexCount = uiVertexCount;
 }
 //=====================================================
 void Mesh::draw(Renderer& renderer, CollisionResult parentResult,
@@ -129,3 +133,31 @@ void Mesh::updateNames(std::vector<std::string>& names, int& entityIndex){
 	names[entityIndex] = getName();
 }
 //=====================================================
+void Mesh::updatePolygons(int& meshPolygons) {
+	if (_isDrawn)
+		meshPolygons += _vertexCount;
+	else
+		meshPolygons += 0;
+}
+//=====================================================================
+void Mesh::setGlobal(float matrix[4][4]) {
+	_worldTransformationMatrix->_11 = matrix[0][0];
+	_worldTransformationMatrix->_12 = matrix[0][1];
+	_worldTransformationMatrix->_13 = matrix[0][2];
+	_worldTransformationMatrix->_14 = matrix[0][3];
+
+	_worldTransformationMatrix->_21 = matrix[1][0];
+	_worldTransformationMatrix->_22 = matrix[1][1];
+	_worldTransformationMatrix->_23 = matrix[1][2];
+	_worldTransformationMatrix->_24 = matrix[1][3];
+
+	_worldTransformationMatrix->_31 = matrix[2][0];
+	_worldTransformationMatrix->_32 = matrix[2][1];
+	_worldTransformationMatrix->_33 = matrix[2][2];
+	_worldTransformationMatrix->_34 = matrix[2][3];
+
+	_worldTransformationMatrix->_41 = matrix[3][0];
+	_worldTransformationMatrix->_42 = matrix[3][1];
+	_worldTransformationMatrix->_43 = matrix[3][2];
+	_worldTransformationMatrix->_44 = matrix[3][3];
+}

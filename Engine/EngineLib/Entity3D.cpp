@@ -230,6 +230,28 @@ const Matrix& Entity3D::worldMatrix() const{
 	return _worldTransformationMatrix;
 }
 //==================================================================================
+void Entity3D::setLocalMatrix(float matrix [4][4]) {
+	_transformationMatrix->_11 = matrix[0][0];
+	_transformationMatrix->_12 = matrix[0][1];
+	_transformationMatrix->_13 = matrix[0][2];
+	_transformationMatrix->_14 = matrix[0][3];
+
+	_transformationMatrix->_21 = matrix[1][0];
+	_transformationMatrix->_22 = matrix[1][1];
+	_transformationMatrix->_23 = matrix[1][2];
+	_transformationMatrix->_24 = matrix[1][3];
+
+	_transformationMatrix->_31 = matrix[2][0];
+	_transformationMatrix->_32 = matrix[2][1];
+	_transformationMatrix->_33 = matrix[2][2];
+	_transformationMatrix->_34 = matrix[2][3];
+
+	_transformationMatrix->_41 = matrix[3][0];
+	_transformationMatrix->_42 = matrix[3][1];
+	_transformationMatrix->_43 = matrix[3][2];
+	_transformationMatrix->_44 = matrix[3][3];
+}
+//==================================================================================
 const Vector3* Entity3D::getPoints() const{
 	return _aabb.points;
 }

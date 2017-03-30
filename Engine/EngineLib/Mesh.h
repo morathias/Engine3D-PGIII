@@ -32,6 +32,8 @@ public:
 	DllExport void buildAABB();
 	DllExport void getNames(vector<std::string>& names);
 	DllExport void updateNames(std::vector<std::string>& names, int& entityIndex);
+	DllExport void updatePolygons(int& meshPolygons);
+	DllExport void setGlobal(float matrix[4][4]);
 
 private:
 	Renderer& _renderer;
@@ -40,6 +42,7 @@ private:
 	pg2::VertexBuffer* _vertexBuffer;
 	Texture _texture;
 	const TexturedVertex* _verts;
+	int _vertexCount;
 };
 //========================================================================================
 #endif
