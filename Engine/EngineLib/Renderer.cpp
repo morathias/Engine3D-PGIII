@@ -145,13 +145,42 @@ Font& Renderer::createFont(int charSize, std::string textFont, bool italic){
 //==================================================================================
 RECT& Renderer::createRect(int x, int y, int width, int height){
 	RECT* rect = new RECT();
-	SetRect(rect, x, y, width, height);
-
+	SetRect(rect, x - (width / 2), y - (height / 2), x + (width / 2), y + (height / 2));
 	return *rect;
 }
 //==================================================================================
 void Renderer::displayText(Font& font, RECT& rect, std::string text){
 	font->DrawTextA(NULL, text.c_str(), -1, &rect, DT_LEFT, D3DCOLOR_XRGB(255,255,255));
+}
+//==================================================================================
+void Renderer::drawLine(float origin[2], float end[2], float thickness){
+	DX9Line line;
+	D3DXCreateLine(m_pkDevice, &line);
+
+	D3DXVECTOR2 vertices[] = { D3DXVECTOR2(origin[0], origin[1]),
+							   D3DXVECTOR2(end[0], end[1]) };
+
+	line->SetWidth(thickness);
+	line->Begin();
+	line->Draw(vertices, ARRAYSIZE(vertices), D3DCOLOR_ARGB(255, 255, 255, 255));
+	line->End();
+	line->Release();
+}
+//==================================================================================
+void Renderer::drawRect(float origin, float width, float height, float thickness){
+	DX9Line line;
+	D3DXCreateLine(m_pkDevice, &line);
+
+	D3DXVECTOR2 vertices[] = {D3DXVECTOR2(origin, origin),
+							  D3DXVECTOR2(width + origin, origin),
+							  D3DXVECTOR2(origin+width, origin + height),
+							  D3DXVECTOR2(origin, height + origin),
+							  D3DXVECTOR2(origin, origin)};
+	line->SetWidth(thickness);
+	line->Begin();
+	line->Draw(vertices, ARRAYSIZE(vertices), D3DCOLOR_ARGB(255, 255, 255, 255));
+	line->End();
+	line->Release();
 }
 //==================================================================================
 void Renderer::endFrame(){

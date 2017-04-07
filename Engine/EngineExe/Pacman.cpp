@@ -29,7 +29,7 @@ bool Pacman::init(Renderer& rkRenderer){
 	camera->setPos(0, 0, -10);
 
 	_importer = new Importer(rkRenderer);
-	if (!_importer->importScene("Assets/DemoTp8v2.dae", _root))
+	if (!_importer->importScene("Assets/test_bsp.dae", _root))
 		cout << "no se cargo escena";
 
 	nodo1 = new Nodo();
@@ -59,7 +59,7 @@ bool Pacman::init(Renderer& rkRenderer){
 	_min->updateBV();
 
 	_screenText = new ScreenText();
-	_screenText->create(0, 0, 200, 720, 15, "arial", "", true, rkRenderer);
+	_screenText->create(25, 12, 50, 24, 15, "arial", "", true, rkRenderer);
 	_text = "";
 	
 	_root.getNames(names);
@@ -67,7 +67,7 @@ bool Pacman::init(Renderer& rkRenderer){
 	return true;
 }
 //==================================================================================
-float rotation = 0.0f;
+float rotation = 10.0f;
 
 void Pacman::frame(Renderer& rkRenderer, Input& input, pg1::Timer& timer){
 	_text = "";
@@ -87,9 +87,9 @@ void Pacman::frame(Renderer& rkRenderer, Input& input, pg1::Timer& timer){
 		camera->walk(-10.0f * (timer.timeBetweenFrames() / 1000.0f));
 	}
 
-	camera->yaw(input.mouseRelPosX() * (timer.timeBetweenFrames() / 1000.0f));
-	camera->pitch(input.mouseRelPosY() * (timer.timeBetweenFrames() / 1000.0f));
-	camera->roll(input.mouseRelPosZ() * 0.1f * (timer.timeBetweenFrames() / 1000.0f));
+	camera->yaw(input.mouseRelPosX() * 0.005f);
+	camera->pitch(input.mouseRelPosY() * 0.005f);
+	camera->roll(input.mouseRelPosZ() * 0.0005f);
 
 	camera->update(rkRenderer);
 
@@ -104,16 +104,20 @@ void Pacman::frame(Renderer& rkRenderer, Input& input, pg1::Timer& timer){
 	//Transformaciones Nodo1
 	if (input.keyDown(Input::KEY_A)){
 		nodo1->setPosX(nodo1->posX() - 1.01f * (timer.timeBetweenFrames() / 1000.0f));
+		_screenText->setX(_screenText->X() - 1);
 	}
 	else if (input.keyDown(Input::KEY_D)){
 		nodo1->setPosX(nodo1->posX() + 1.01f * (timer.timeBetweenFrames() / 1000.0f));
+		_screenText->setX(_screenText->X() + 1);
 	}
 
 	if (input.keyDown(Input::KEY_S)){
 		nodo1->setPosY(nodo1->posY() - 1.01f * (timer.timeBetweenFrames() / 1000.0f));
+		_screenText->setY(_screenText->Y() + 1);
 	}
 	else if (input.keyDown(Input::KEY_W)){
 		nodo1->setPosY(nodo1->posY() + 1.01f * (timer.timeBetweenFrames() / 1000.0f));
+		_screenText->setY(_screenText->Y() - 1);
 	}
 
 	if (input.keyDown(Input::KEY_K))
@@ -146,16 +150,16 @@ void Pacman::frame(Renderer& rkRenderer, Input& input, pg1::Timer& timer){
 	_min->draw(rkRenderer, AllInside, camera->getFrustum());
 
 	int index = 0;
-	_root.updateNames(names, index);
+	/*_root.updateNames(names, index);
 	for (size_t i = 0; i < names.size(); i++)
 	{
 		_text += names[i]+"\n";
-	}
-
-	int totalVertexCount = 0;
-	_root.updatePolygons(totalVertexCount);
+	}*/
+	_text = "a text";
+	//int totalVertexCount = 0;
+	/*_root.updatePolygons(totalVertexCount);
 	_text += "vertex Count: " + to_string(totalVertexCount) + "\n";
-	_text += "triangle count: " + to_string(totalVertexCount / 3);
+	_text += "triangle count: " + to_string(totalVertexCount / 3);*/
 
 	_screenText->setText(_text);
 	_screenText->display(rkRenderer);

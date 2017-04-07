@@ -22,7 +22,14 @@ void ScreenText::create(int x, int y,
 {
 	_font = renderer.createFont(charSize, textFont, italic);
 	_rect = renderer.createRect(x, y, width, height);
+
 	_text = text;
+
+	_x = x;
+	_y = y;
+
+	_width = width;
+	_height = height;
 }
 //=================================================
 void ScreenText::display(Renderer& renderer){
@@ -33,3 +40,25 @@ void ScreenText::setText(std::string text){
 	_text = text;
 }
 //=================================================
+void ScreenText::setX(int x){
+	_x = x;
+	updateRect();
+}
+int ScreenText::X() const{
+	return _x;
+}
+
+void ScreenText::setY(int y){
+	_y = y;
+	updateRect();
+}
+int ScreenText::Y() const{
+	return _y;
+}
+//=================================================
+void ScreenText::updateRect(){
+	_rect.left = _x - (_width / 2);
+	_rect.top = _y - (_height / 2);
+	_rect.right = _x + (_width / 2);
+	_rect.bottom = _y + (_height / 2);
+}

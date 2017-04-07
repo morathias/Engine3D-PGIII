@@ -19,7 +19,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v140</PlatformToolset>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>DynamicLibrary</ConfigurationType>
@@ -80,6 +80,7 @@
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="Importer.cpp" />
     <ClCompile Include="input.cpp" />
+    <ClCompile Include="Line.cpp" />
     <ClCompile Include="Mesh.cpp" />
     <ClCompile Include="Nodo.cpp" />
     <ClCompile Include="pg1_timer.cpp" />
@@ -113,6 +114,7 @@
     <ClInclude Include="Game.h" />
     <ClInclude Include="Importer.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="Line.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="Nodo.h" />
     <ClInclude Include="pg1_timer.h" />

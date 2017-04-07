@@ -21,6 +21,15 @@ public:
 
 	DllExport void setText(std::string text);
 
+	DllExport void setX(int x);
+	DllExport int X() const;
+
+	DllExport void setY(int y);
+	DllExport int Y() const;
+
+private:
+	void updateRect();
+
 private:
 	Font _font;
 	int _width, _height;
@@ -30,6 +39,8 @@ private:
 	std::string _textFont;
 	RECT _rect;
 	std::string _text;
+
+	
 };
 //===================================================================
 #endif

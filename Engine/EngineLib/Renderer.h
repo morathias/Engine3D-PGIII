@@ -23,6 +23,10 @@ typedef interface ID3DXFont ID3DXFont;
 typedef interface ID3DXFont *LPD3DXFONT;
 typedef ID3DXFont* Font;
 
+typedef interface ID3DXLine ID3DXLine;
+typedef interface ID3DXLine *LPD3DXLINE;
+typedef ID3DXLine* DX9Line;
+
 namespace pg2{
 	class IndexBuffer;
 	class VertexBuffer;
@@ -50,6 +54,9 @@ public:
 	Font& createFont(int charSize, std::string textFont, bool italic);
 	RECT& createRect(int x, int y, int width, int height);
 	void displayText(Font& font, RECT& rect, std::string text);
+
+	void drawLine(float origin[2], float end[2], float thickness);
+	void drawRect(float origin, float width, float height, float thickness);
 
 	DllExport void endFrame();
 

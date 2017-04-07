@@ -7,6 +7,7 @@
 #include "Random.h"
 #include "Vector2.h"
 #include "ScreenText.h"
+#include "Line.h"
 #include "Sound.h"
 #include "Mesh.h"
 #include "Utility.h"
