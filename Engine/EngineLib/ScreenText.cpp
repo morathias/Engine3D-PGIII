@@ -47,7 +47,7 @@ void ScreenText::setX(int x){
 int ScreenText::X() const{
 	return _x;
 }
-
+//=================================================
 void ScreenText::setY(int y){
 	_y = y;
 	updateRect();
@@ -56,9 +56,24 @@ int ScreenText::Y() const{
 	return _y;
 }
 //=================================================
+void ScreenText::setWidth(int width){
+	_width = width;
+}
+int ScreenText::width() const{
+	return _width;
+}
+//=================================================
+void ScreenText::setHeight(int height){
+	_height = height;
+}
+int ScreenText::height() const{
+	return _height;
+}
+//=================================================
 void ScreenText::updateRect(){
 	_rect.left = _x - (_width / 2);
 	_rect.top = _y - (_height / 2);
 	_rect.right = _x + (_width / 2);
 	_rect.bottom = _y + (_height / 2);
 }
+//=================================================

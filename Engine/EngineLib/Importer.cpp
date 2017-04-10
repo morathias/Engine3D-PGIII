@@ -1,5 +1,6 @@
 #include "Importer.h"
 #include "Utility.h"
+#include "Debuger.h"
 #include "assimp\Importer.hpp"
 #include "assimp\scene.h"
 #include "assimp\postprocess.h"
@@ -18,13 +19,14 @@ bool Importer::importScene(const std::string& fileName, Nodo& rootNode){
 	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) return false;
 
 	processNode(rootNode, *scene->mRootNode, *scene);
-	rootNode.setRotation(0, rootNode.rotationY(), rootNode.rotationZ());
+	rootNode.setRotation(0, 0, 0);
+	Debuger::setScene(rootNode);
 	return true;
 }
 //=============================================================================================================
 bool Importer::processNode(Nodo& nodo, aiNode& assimpNode, const aiScene& scene){
 	nodo.setName(assimpNode.mName.C_Str());
-	cout << nodo.getName() << endl;
+	//cout << nodo.getName() << endl;
 
 	aiVector3t<float> position, scaling;
 	aiQuaterniont<float> rotation;
@@ -35,13 +37,15 @@ bool Importer::processNode(Nodo& nodo, aiNode& assimpNode, const aiScene& scene)
 							assimpNode.mTransformation.c1, assimpNode.mTransformation.c2, assimpNode.mTransformation.c3, assimpNode.mTransformation.c4,
 							assimpNode.mTransformation.d1, assimpNode.mTransformation.d2, assimpNode.mTransformation.d3, assimpNode.mTransformation.d4 };
 
-	nodo.setLocalMatrix(matrix);*/
+	decomposedMatrix decomposedMatrix = _renderer.decomposeMatrix(matrix);*/
 
 	nodo.setPosX(position.x);
 	nodo.setPosY(position.y);
 	nodo.setPosZ(position.z);
 	nodo.setScale(scaling.x, scaling.y, scaling.z);
 	nodo.setRotation(rotation.x, rotation.y, rotation.z);
+	//cout << nodo.rotationX() << " " << nodo.rotationY() << " " << nodo.rotationZ() << endl;
+	//nodo.updateWorldTransformation();
 
 	for (size_t j = 0; j < assimpNode.mNumMeshes; j++){
 		Mesh& mesh = processMesh(*scene.mMeshes[assimpNode.mMeshes[j]], assimpNode, scene);
@@ -49,8 +53,7 @@ bool Importer::processNode(Nodo& nodo, aiNode& assimpNode, const aiScene& scene)
 		nodo.addChild(mesh);
 	}
 
-	for (size_t i = 0; i < assimpNode.mNumChildren; i++)
-	{
+	for (size_t i = 0; i < assimpNode.mNumChildren; i++){
 		Nodo* nodoHijo = new Nodo();
 
 		nodo.addChild(*nodoHijo);
@@ -67,7 +70,7 @@ Mesh& Importer::processMesh(aiMesh& assimpMesh, aiNode& assimpNode, const aiScen
 	string name = assimpNode.mName.C_Str();
 	mesh->setName(name + "_mesh");
 	
-	cout << mesh->getName() << endl;
+	//cout << mesh->getName() << endl;
 	TexturedVertex* verts = new TexturedVertex[assimpMesh.mNumVertices];
 	if (assimpMesh.HasTextureCoords(0)){
 		for (size_t i = 0; i < assimpMesh.mNumVertices; i++)
@@ -112,13 +115,14 @@ Mesh& Importer::processMesh(aiMesh& assimpMesh, aiNode& assimpNode, const aiScen
 						   assimpNode.mTransformation.c1, assimpNode.mTransformation.c2, assimpNode.mTransformation.c3, assimpNode.mTransformation.c4,
 						   assimpNode.mTransformation.d1, assimpNode.mTransformation.d2, assimpNode.mTransformation.d3, assimpNode.mTransformation.d4};
 	
-	mesh->setGlobal(matrix);*/
+	decomposedMatrix decomposedMatrix = _renderer.decomposeMatrix(matrix);*/
+
 	mesh->setPosX(position.x);
 	mesh->setPosY(position.y);
 	mesh->setPosZ(position.z);
 	mesh->setScale(scaling.x, scaling.y, scaling.z);
 	mesh->setRotation(rotation.x, rotation.y, rotation.z);
-	cout << mesh->posX() << " " << mesh->posY() << " " << mesh->posZ() << endl;
+	//cout << mesh->rotationX() << " " << mesh->rotationY() << " " << mesh->rotationZ() << endl;
 	
 	mesh->updateWorldTransformation();
 	mesh->updateBV();

@@ -8,7 +8,7 @@ Window::~Window(){
 //==================================================================================
 bool Window::init(HINSTANCE hInst, unsigned int uiWidth, unsigned int uiHeight){
 	static TCHAR szWindowClass[] = _T("engine_fn");
-	static TCHAR szTitle[] = _T("EngineFN");
+	static TCHAR szTitle[] = _T("Frame Engine");
 	//------------------register Window-----------------------------------------
 	WNDCLASSEX wc;
 

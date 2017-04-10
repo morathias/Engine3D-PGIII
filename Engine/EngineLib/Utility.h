@@ -32,14 +32,17 @@ enum MatrixType{
 	MATRIX_TYPE_COUNT
 };
 //========================================================================================
-enum CollisionResult
-{
+enum CollisionResult{
 	AllInside,
 	AllOutside,
 	PartiallyInside
 };
 //========================================================================================
-
+struct decomposedMatrix{
+	float posX, posY, posZ;
+	float scaleX, scaleY, scaleZ;
+	float rotX, rotY, rotZ;
+};
 //========================================================================================
 
 #endif

@@ -9,6 +9,6 @@ public:
 	DllExport ~Line();
 
 	DllExport void drawLine(float origin[2], float end[2], float thickness,Renderer& renderer);
-	DllExport void drawRect(float origin, float width, float height, float thickness, Renderer& renderer);
+	DllExport void drawRect(float originX, float originY, float width, float height, float thickness, Renderer& renderer);
 };
 #endif

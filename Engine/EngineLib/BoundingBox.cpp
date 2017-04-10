@@ -3,6 +3,7 @@
 #include "pg2_vertexbuffer.h"
 #include <d3dx9.h>
 #pragma comment (lib, "d3dx9.lib")
+#include<iostream>
 
 BoundingBox::BoundingBox(Renderer& renderer) :
 _renderer(renderer)
@@ -15,51 +16,50 @@ BoundingBox::~BoundingBox(){
 	_indexBuffer = NULL;
 }
 
-void BoundingBox::buildBox(const Vector3& minPoint, const Vector3& maxPoint){
-	Vertex vertices[8];
-	vertices[0].x = -1.0f; vertices[0].y = 1.0f; vertices[0].z = -1.0f; vertices[0].color = D3DCOLOR_ARGB(155, 0, 255, 0);
-	vertices[1].x = 1.0f; vertices[1].y = 1.0f; vertices[1].z = -1.0f; vertices[1].color = D3DCOLOR_ARGB(155, 0, 255, 0);
-	vertices[2].x = -1.0f; vertices[2].y = -1.0f; vertices[2].z = -1.0f; vertices[2].color = D3DCOLOR_ARGB(155, 0, 255, 0);
-	vertices[3].x = 1.0f; vertices[3].y = -1.0f; vertices[3].z = -1.0f; vertices[3].color = D3DCOLOR_ARGB(155, 0, 255, 0);
-	vertices[4].x = -1.0f; vertices[4].y = 1.0f; vertices[4].z = 1.0f; vertices[4].color = D3DCOLOR_ARGB(155, 0, 255, 0);
-	vertices[5].x = 1.0f; vertices[5].y = 1.0f; vertices[5].z = 1.0f; vertices[5].color = D3DCOLOR_ARGB(155, 0, 255, 0);
-	vertices[6].x = -1.0f; vertices[6].y = -1.0f; vertices[6].z = 1.0f; vertices[6].color = D3DCOLOR_ARGB(155, 0, 255, 0);
-	vertices[7].x = 1.0f; vertices[7].y = -1.0f; vertices[7].z = 1.0f; vertices[7].color = D3DCOLOR_ARGB(155, 0, 255, 0);
+void BoundingBox::buildBox(const AABB& aabb){
+	_vertices[0].x = aabb.minPointX;	_vertices[0].y = aabb.maxPointY;	_vertices[0].z = aabb.minPointZ;	_vertices[0].color = D3DCOLOR_ARGB(255, 0, 255, 0);
+	_vertices[1].x = aabb.maxPointX;	_vertices[1].y = aabb.maxPointY;	_vertices[1].z = aabb.minPointZ;	_vertices[1].color = D3DCOLOR_ARGB(255, 0, 255, 0);
+	_vertices[2].x = aabb.minPointX;	_vertices[2].y = aabb.minPointY;	_vertices[2].z = aabb.minPointZ;	_vertices[2].color = D3DCOLOR_ARGB(255, 0, 255, 0);
+	_vertices[3].x = aabb.maxPointX;	_vertices[3].y = aabb.minPointY;	_vertices[3].z = aabb.minPointZ;	_vertices[3].color = D3DCOLOR_ARGB(255, 0, 255, 0);
+	_vertices[4].x = aabb.minPointX;	_vertices[4].y = aabb.maxPointY;	_vertices[4].z = aabb.maxPointZ;	_vertices[4].color = D3DCOLOR_ARGB(255, 0, 255, 0);
+	_vertices[5].x = aabb.maxPointX;	_vertices[5].y = aabb.maxPointY;	_vertices[5].z = aabb.maxPointZ;	_vertices[5].color = D3DCOLOR_ARGB(255, 0, 255, 0);
+	_vertices[6].x = aabb.minPointX;	_vertices[6].y = aabb.minPointY;	_vertices[6].z = aabb.maxPointZ;	_vertices[6].color = D3DCOLOR_ARGB(255, 0, 255, 0);
+	_vertices[7].x = aabb.maxPointX;	_vertices[7].y = aabb.minPointY;	_vertices[7].z = aabb.maxPointZ;	_vertices[7].color = D3DCOLOR_ARGB(255, 0, 255, 0);
 
 	unsigned short indices[] = {
-		0, 1, 2,    // side 1
-		2, 1, 3,
-		4, 0, 6,    // side 2
-		6, 0, 2,
-		7, 5, 6,    // side 3
-		6, 5, 4,
-		3, 1, 7,    // side 4
-		7, 1, 5,
-		4, 5, 0,    // side 5
-		0, 5, 1,
-		3, 7, 2,    // side 6
-		2, 7, 6,
+		0, 1, 1, 3, 3, 2, 2, 0,
+		1, 5, 5, 7, 7, 3, 3, 1,
+		5, 4, 4, 6, 6, 7, 7, 5,
+		0, 4, 4, 6, 6, 2, 2, 0,
+		0, 1, 1, 5, 5, 4, 4, 0,
+		2, 3, 3, 7, 7, 6, 6, 2
 	};
 
 	_indexBuffer = _renderer.createIndexBuffer();
 	_vertexBuffer = _renderer.createVertexBuffer(sizeof(Vertex), 1);
 
-	_vertexBuffer->setVertexData(vertices, 8);
-	_indexBuffer->setIndexData(indices, 36);
+	_vertexBuffer->setVertexData(_vertices, 8);
+	_indexBuffer->setIndexData(indices, 48);
 
 	_renderer.setCurrentIndexBuffer(_indexBuffer);
 	_renderer.setCurrentVertexBuffer(_vertexBuffer);
 }
 
-void BoundingBox::draw(Renderer& renderer, CollisionResult parentResult,
-					   const Frustum& frustum)
-{
-		_renderer.setMatrix(MatrixType::WORLD, _worldTransformationMatrix);
+void BoundingBox::updateBox(const AABB& aabb, float posX, float posY, float posZ, float scaleX, float scaleY, float scaleZ){
+	for (size_t i = 0; i < 8; i++){
+		_vertices[i].x = (aabb.points[i]->x - posX) / scaleX;
+		_vertices[i].y = (aabb.points[i]->y - posY) / scaleY;
+		_vertices[i].z = (aabb.points[i]->z - posZ) / scaleZ;
+		_vertices[i].color = D3DCOLOR_ARGB(255, 0, 255, 0);
+	}
 
-		_vertexBuffer->bind();
-		_indexBuffer->bind();
-
-		_renderer.drawCurrentBuffers(TRIANGLELIST);
+	_vertexBuffer->setVertexData(_vertices, 8);
+	_renderer.setCurrentVertexBuffer(_vertexBuffer);
 }
 
-void BoundingBox::updateBV(){}
+void BoundingBox::draw(Renderer& renderer){
+	_vertexBuffer->bind();
+	_indexBuffer->bind();
+
+	_renderer.drawCurrentBuffers(LINELIST);
+}

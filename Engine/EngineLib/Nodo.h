@@ -19,10 +19,14 @@ public:
 	
 	DllExport void draw(Renderer& renderer, CollisionResult parentResult,
 						const Frustum& frustum);
+
 	DllExport void updateBV();
-	DllExport void getNames(vector<std::string>& names);
-	DllExport void updateNames(std::vector<std::string>& names, int& entityIndex);
-	DllExport void updatePolygons(int& meshPolygons);
+
+	void getNames(vector<std::string>& names, std::vector<int>& lvlDeep, int lvl);
+	void updateNames(std::vector<std::string>& names, int& entityIndex);
+
+	void updatePolygons(int& meshPolygons);
+
 	DllExport Entity3D& findEntity(string name);
 
 private:

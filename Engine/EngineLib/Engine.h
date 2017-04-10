@@ -4,6 +4,7 @@
 #include <iostream>
 #include "Window.h"
 #include "Renderer.h"
+#include "Debuger.h"
 #include "Game.h"
 #include "directinput.h"
 #include "pg1_timer.h"
@@ -28,6 +29,7 @@ private:
 	Game* g;
 	DirectInput* i;
 	pg1::Timer* _timer;
+	Debuger* _debuger;
 };
 //========================================================================================
 #endif

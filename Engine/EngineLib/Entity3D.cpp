@@ -25,7 +25,8 @@ Entity3D::Entity3D()
 	_scaleZ(1.0f),
 	_name(""),
 	_parent(NULL),
-	_isDrawn(true)
+	_isDrawn(true),
+	_boundingBox(NULL)
 {
 	for (size_t i = 0; i < 8; i++)
 	{

@@ -1,6 +1,7 @@
 #include "Renderer.h"
 #include "pg2_vertexbuffer.h"
 #include "pg2_indexbuffer.h"
+#include <iostream>
 //==================================================================================
 #include <d3d9.h>
 #pragma comment (lib, "d3d9.lib") 
@@ -87,7 +88,7 @@ bool Renderer::init(HWND hWnd, unsigned int uiW, unsigned int uiH){
 
 	if (hr != D3D_OK) return false;
 	//----------------------States-----------------------------------------
-	m_pkDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	m_pkDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
 	m_pkDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 	m_pkDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	m_pkDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
@@ -167,15 +168,15 @@ void Renderer::drawLine(float origin[2], float end[2], float thickness){
 	line->Release();
 }
 //==================================================================================
-void Renderer::drawRect(float origin, float width, float height, float thickness){
+void Renderer::drawRect(float originX, float originY, float width, float height, float thickness){
 	DX9Line line;
 	D3DXCreateLine(m_pkDevice, &line);
 
-	D3DXVECTOR2 vertices[] = {D3DXVECTOR2(origin, origin),
-							  D3DXVECTOR2(width + origin, origin),
-							  D3DXVECTOR2(origin+width, origin + height),
-							  D3DXVECTOR2(origin, height + origin),
-							  D3DXVECTOR2(origin, origin)};
+	D3DXVECTOR2 vertices[] = {D3DXVECTOR2(originX, originY),
+							  D3DXVECTOR2(width + originX, originY),
+							  D3DXVECTOR2(originX + width, originY + height),
+							  D3DXVECTOR2(originX, height + originY),
+							  D3DXVECTOR2(originX, originY)};
 	line->SetWidth(thickness);
 	line->Begin();
 	line->Draw(vertices, ARRAYSIZE(vertices), D3DCOLOR_ARGB(255, 255, 255, 255));
@@ -258,3 +259,53 @@ void Renderer::drawCurrentBuffers(Primitive primitive){
 	m_pkDevice->DrawIndexedPrimitive(_primitives[primitive], 0, 0, _vertexBuffer->vertexCount(), 0, _indexBuffer->indexCount() / 3);
 }
 //==================================================================================
+decomposedMatrix Renderer::decomposeMatrix(const float matrix[4][4]){
+	D3DXMATRIX dx9Matrix;
+	dx9Matrix._11 = matrix[0][0];
+	dx9Matrix._12 = matrix[0][1];
+	dx9Matrix._13 = matrix[0][2];
+	dx9Matrix._14 = matrix[0][3];
+
+	dx9Matrix._21 = matrix[1][0];
+	dx9Matrix._22 = matrix[1][1];
+	dx9Matrix._23 = matrix[1][2];
+	dx9Matrix._24 = matrix[1][3];
+
+	dx9Matrix._31 = matrix[2][0];
+	dx9Matrix._32 = matrix[2][1];
+	dx9Matrix._33 = matrix[2][2];
+	dx9Matrix._34 = matrix[2][3];
+
+	dx9Matrix._41 = matrix[3][0];
+	dx9Matrix._42 = matrix[3][1];
+	dx9Matrix._43 = matrix[3][2];
+	dx9Matrix._44 = matrix[3][3];
+	for (size_t i = 0; i < 4; i++){
+		for (size_t j = 0; j < 4; j++)
+			dx9Matrix.m[i][j] = matrix[i][j];
+	}
+
+	/*for (size_t i = 0; i < 4; i++){
+		for (size_t j = 0; j < 4; j++)
+			std::cout << " " << dx9Matrix.m[i][j];
+		std::cout << std::endl;
+	}*/
+	D3DXVECTOR3 pos, scale;
+	D3DXQUATERNION rot;
+	D3DXMatrixDecompose(&scale, &rot, &pos, &dx9Matrix);
+
+	decomposedMatrix decomposedMatrix;
+	decomposedMatrix.posX = pos.x;
+	decomposedMatrix.posY = pos.y;
+	decomposedMatrix.posZ = pos.z;
+	//std::cout << scale.x << " " << scale.y << " " << scale.z << std::endl;
+	decomposedMatrix.scaleX = scale.x;
+	decomposedMatrix.scaleY = scale.y;
+	decomposedMatrix.scaleZ = scale.z;
+
+	decomposedMatrix.rotX = rot.x;
+	decomposedMatrix.rotY = rot.y;
+	decomposedMatrix.rotZ = rot.z;
+
+	return decomposedMatrix;
+}

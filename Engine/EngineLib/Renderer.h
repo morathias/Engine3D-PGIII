@@ -56,7 +56,7 @@ public:
 	void displayText(Font& font, RECT& rect, std::string text);
 
 	void drawLine(float origin[2], float end[2], float thickness);
-	void drawRect(float origin, float width, float height, float thickness);
+	void drawRect(float originX, float originY, float width, float height, float thickness);
 
 	DllExport void endFrame();
 
@@ -74,6 +74,8 @@ public:
 	void setCurrentVertexBuffer(pg2::VertexBuffer* vertexBuffer);
 
 	void drawCurrentBuffers(Primitive primitive);
+
+	decomposedMatrix decomposeMatrix(const float matrix[4][4]);
 
 private:
 	unsigned int uiWidth;

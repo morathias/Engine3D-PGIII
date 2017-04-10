@@ -30,7 +30,7 @@ public:
 	DllExport void updateBV();
 	DllExport void setTextureId(int iTextureId, Texture texture);
 	DllExport void buildAABB();
-	DllExport void getNames(vector<std::string>& names);
+	DllExport void getNames(vector<std::string>& names, std::vector<int>& lvlDeep, int lvl);
 	DllExport void updateNames(std::vector<std::string>& names, int& entityIndex);
 	DllExport void updatePolygons(int& meshPolygons);
 	DllExport void setGlobal(float matrix[4][4]);

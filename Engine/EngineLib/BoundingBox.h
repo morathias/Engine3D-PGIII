@@ -1,23 +1,24 @@
 #ifndef BOUNDINGBOX_H
 #define BOUNDINGBOX_H
 
-#include "Entity3D.h"
+#include "Renderer.h"
 
-class BoundingBox: public Entity3D
-{
+class BoundingBox{
 public:
-	DllExport BoundingBox(Renderer& renderer);
-	DllExport ~BoundingBox();
+	BoundingBox(Renderer& renderer);
+	~BoundingBox();
 
-	DllExport void buildBox(const Vector3& minPoint, const Vector3& maxPoint);
-	DllExport void draw(Renderer& renderer, CollisionResult parentResult,
-						const Frustum& frustum);
-	DllExport void updateBV();
+	void buildBox(const AABB& aabb);
+	void updateBox(const AABB& aabb, float posX, float posY, float posZ, float scaleX, float scaleY, float scaleZ);
+
+	void draw(Renderer& renderer);
+
 private:
 	Renderer& _renderer;
-	Primitive _primitive;
 	pg2::IndexBuffer* _indexBuffer;
 	pg2::VertexBuffer* _vertexBuffer;
+
+	Vertex _vertices[8];
 };
 
 #endif

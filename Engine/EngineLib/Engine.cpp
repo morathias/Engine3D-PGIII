@@ -11,7 +11,8 @@ Engine::Engine(HINSTANCE hinst, unsigned int uiW, unsigned int uiH)
 	hinstance(hinst),
 	uiWidth(uiW),
 	uiHeight(uiH),
-	_timer(new pg1::Timer)
+	_timer(new pg1::Timer),
+	_debuger(new Debuger(*r, *_timer))
 {
 	AllocConsole();
 	freopen("CONIN$", "r",stdin);
@@ -30,6 +31,8 @@ Engine::~Engine(){
 	i = NULL;
 	delete _timer;
 	_timer = NULL;
+	delete _debuger;
+	_debuger = NULL;
 }
 //==================================================================================
 bool Engine::init(){
@@ -49,6 +52,9 @@ bool Engine::init(){
 
 	else return false;
 	//------------------------------------------
+	if (!_debuger->initScene())
+		return false;
+	//------------------------------------------
 	return true;
 }
 //==================================================================================
@@ -57,21 +63,19 @@ void Engine::run(){
 
 	while (!g->isDone())
 	{
-		static std::stringstream showFps;
-		showFps.str("");
-		showFps << "Engine (" << _timer->fps() << " FPS)";
-		w->setTitle(showFps.str());
-
 		i->reacquire();
+
 		r->beginFrame();
+
 		g->frame(*r, *i, *_timer);
+		_debuger->updateScene();
 		_timer->measure();
+
 		r->endFrame();
 
 		if (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE)){
 			switch (Msg.message){
-				case WM_QUIT:
-				{
+				case WM_QUIT:{
 					g->setDone(true);
 					break;
 				}

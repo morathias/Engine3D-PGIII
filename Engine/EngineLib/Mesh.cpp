@@ -2,6 +2,7 @@
 #include "pg2_indexbuffer.h"
 #include "pg2_vertexbuffer.h"
 #include "BoundingBox.h"
+#include "Debuger.h"
 #include <algorithm>
 #include <iostream>
 //=====================================================
@@ -15,6 +16,8 @@ Mesh::~Mesh(){
 	_vertexBuffer = NULL;
 	delete _indexBuffer;
 	_indexBuffer = NULL;
+	delete _boundingBox;
+	_boundingBox = NULL;
 }
 //=====================================================
 void Mesh::setMeshData(const TexturedVertex* texVertex, 
@@ -69,6 +72,11 @@ void Mesh::draw(Renderer& renderer, CollisionResult parentResult,
 
 		_renderer.drawCurrentBuffers(_primitive);
 		_isDrawn = true;
+
+		Debuger::getBatches();
+
+		if (Debuger::boundingBoxesShown())
+			_boundingBox->draw(_renderer);
 	}
 	else
 		_isDrawn = false;
@@ -82,7 +90,7 @@ void Mesh::updateBV(){
 	D3DXVECTOR3 pos, scale;
 	D3DXQUATERNION rot;
 	D3DXMatrixDecompose(&scale, &rot, &pos, _worldTransformationMatrix);
-
+	
 	float auxMaxX = (_aabb.maxPointX * scale.x) + pos.x;
 	float auxMaxY = (_aabb.maxPointY * scale.y) + pos.y;
 	float auxMaxZ = (_aabb.maxPointZ * scale.z) + pos.z;
@@ -90,7 +98,7 @@ void Mesh::updateBV(){
 	float auxMinX = (_aabb.minPointX * scale.x) + pos.x;
 	float auxMinY = (_aabb.minPointY * scale.y) + pos.y;
 	float auxMinZ = (_aabb.minPointZ * scale.z) + pos.z;
-
+	
 	_aabb.points[0]->x = auxMinX;		_aabb.points[0]->y = auxMaxY;		_aabb.points[0]->z = auxMinZ;
 	_aabb.points[1]->x = auxMaxX;		_aabb.points[1]->y = auxMaxY;		_aabb.points[1]->z = auxMinZ;
 	_aabb.points[2]->x = auxMinX;		_aabb.points[2]->y = auxMinY;		_aabb.points[2]->z = auxMinZ;
@@ -102,6 +110,8 @@ void Mesh::updateBV(){
 
 	_aabb.max[0] = auxMaxX;		_aabb.max[1] = auxMaxY;		_aabb.max[2] = auxMaxZ;
 	_aabb.min[0] = auxMinX;		_aabb.min[1] = auxMinY;		_aabb.min[2] = auxMinZ;
+
+	_boundingBox->updateBox(_aabb, pos.x, pos.y, pos.z, scale.x, scale.y, scale.z);
 }
 //=====================================================
 void Mesh::buildAABB(){
@@ -123,10 +133,15 @@ void Mesh::buildAABB(){
 		if (_verts[i].z > _aabb.maxPointZ)
 			_aabb.maxPointZ = _verts[i].z;
 	}
+
+	_boundingBox = new BoundingBox(_renderer);
+	_boundingBox->buildBox(_aabb);
 }
 //=====================================================
-void Mesh::getNames(vector<string>& names){
+void Mesh::getNames(vector<string>& names, std::vector<int>& lvlDeep, int lvl){
 	names.push_back(getName());
+	lvl++;
+	lvlDeep.push_back(lvl);
 }
 //=====================================================
 void Mesh::updateNames(std::vector<std::string>& names, int& entityIndex){

@@ -71,6 +71,7 @@
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Debuger.cpp" />
     <ClCompile Include="directinput.cpp" />
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Entity2D.cpp" />
@@ -104,6 +105,7 @@
     <ClInclude Include="Animation.h" />
     <ClInclude Include="BoundingBox.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Debuger.h" />
     <ClInclude Include="directinput.h" />
     <ClInclude Include="DLLExport.h" />
     <ClInclude Include="Engine.h" />

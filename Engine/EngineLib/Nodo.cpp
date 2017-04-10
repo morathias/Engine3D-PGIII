@@ -1,7 +1,10 @@
+#define NOMINMAX
 #include "Nodo.h"
 #include <algorithm>
+#include <limits>
 #include <iostream>
 #include <d3dx9.h>
+#include "BoundingBox.h"
 //=====================================================================
 using namespace std;
 //=====================================================================
@@ -12,6 +15,7 @@ Nodo::~Nodo(){
 		for (size_t i = 0; i < _childs.size(); i++)
 			delete _childs[i];
 	}
+	delete _boundingBox;
 }
 //=====================================================================
 bool Nodo::addChild(Entity3D& child){
@@ -69,13 +73,13 @@ const vector<Entity3D*> Nodo::childs() const{
 }
 //=====================================================================
 void Nodo::updateBV(){
-	float newMinPointX = FLT_MAX;
-	float newMinPointY = FLT_MAX;
-	float newMinPointZ = FLT_MAX;
+	float newMinPointX = std::numeric_limits<float>::max();
+	float newMinPointY = std::numeric_limits<float>::max();
+	float newMinPointZ = std::numeric_limits<float>::max();
 
-	float newMaxPointX = FLT_MIN;
-	float newMaxPointY = FLT_MIN;
-	float newMaxPointZ = FLT_MIN;
+	float newMaxPointX = std::numeric_limits<float>::lowest();
+	float newMaxPointY = std::numeric_limits<float>::lowest();
+	float newMaxPointZ = std::numeric_limits<float>::lowest();
 
 	for (size_t i = 0; i < _childs.size(); i++){
 		_childs[i]->updateBV();
@@ -94,6 +98,7 @@ void Nodo::updateBV(){
 		if (newMaxPointZ < _childs[i]->getAABB().max[2])
 			newMaxPointZ = _childs[i]->getAABB().max[2];
 	}
+
 	_aabb.max[0] = newMaxPointX;	_aabb.max[1] = newMaxPointY;	_aabb.max[2] = newMaxPointZ;
 	_aabb.min[0] = newMinPointX;	_aabb.min[1] = newMinPointY;	_aabb.min[2] = newMinPointZ;
 
@@ -107,11 +112,13 @@ void Nodo::updateBV(){
 	_aabb.points[7]->x = newMaxPointX;	_aabb.points[7]->y = newMinPointY;	_aabb.points[7]->z = newMaxPointZ;
 }
 //=====================================================================
-void Nodo::getNames(vector<string>& names){
+void Nodo::getNames(vector<string>& names, std::vector<int>& lvlDeep, int lvl){
 	names.push_back(getName());
+	lvl++;
+	lvlDeep.push_back(lvl);
 	for (size_t i = 0; i < _childs.size(); i++)
 	{
-		_childs[i]->getNames(names);
+		_childs[i]->getNames(names, lvlDeep, lvl);
 	}
 }
 //=====================================================================

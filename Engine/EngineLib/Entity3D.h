@@ -9,13 +9,13 @@
 //========================================================================================
 class Nodo;
 class BoundingBox;
-
 //========================================================================================
 class Entity3D
 {
 public:
 	DllExport Entity3D();
 	DllExport ~Entity3D();
+
 	DllExport void setPosX(float fPosX);
 	DllExport void setPosY(float fPosY);
 	DllExport void setPosZ(float fPosZ);
@@ -53,15 +53,20 @@ public:
 	DllExport const Matrix& worldMatrix() const;
 	DllExport void setLocalMatrix(float matrix[4][4]);
 	DllExport virtual void updateWorldTransformation();
+
 	DllExport virtual void draw(Renderer& renderer, CollisionResult parentResult,
 								const Frustum& frustum) = 0;
 
 	DllExport const AABB& getAABB() const;
 	DllExport virtual void updateBV() = 0;
+
 	const Vector3* getPoints() const;
-	DllExport virtual void getNames(std::vector<std::string>& names) = 0;
+
+	DllExport virtual void getNames(std::vector<std::string>& names, std::vector<int>& lvlDeep, int lvl) = 0;
 	DllExport virtual void updateNames(std::vector<std::string>& names, int& entityIndex) = 0;
+
 	DllExport virtual void updatePolygons(int& meshPolygons) = 0;
+
 	DllExport virtual Entity3D& findEntity(std::string name);
 
 protected:
