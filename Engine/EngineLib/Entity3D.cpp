@@ -29,9 +29,8 @@ Entity3D::Entity3D()
 	_boundingBox(NULL)
 {
 	for (size_t i = 0; i < 8; i++)
-	{
 		_aabb.points[i] = new D3DXVECTOR3();
-	}
+
 	updateLocalTransformation();
 }
 //==================================================================================
@@ -60,10 +59,11 @@ void Entity3D::setPosZ(float fPosZ){
 	updateLocalTransformation();
 }
 //==================================================================================
-void Entity3D::setRotation(float rotationX, float rotationY, float rotationZ){
+void Entity3D::setRotation(float rotationX, float rotationY, float rotationZ, float rotationW){
 	_rotationX = rotationX;
 	_rotationY = rotationY;
 	_rotationZ = rotationZ;
+	_rotationW = rotationW;
 
 	updateLocalTransformation();
 }
@@ -79,61 +79,6 @@ void Entity3D::setScale(float fScaleX, float fScaleY, float scaleZ){
 	_scaleX = fScaleX;
 	_scaleY = fScaleY;
 	_scaleZ = scaleZ;
-
-	updateLocalTransformation();
-}
-//==================================================================================
-void Entity3D::Flip(bool flipped){
-	if (flipped && _scaleX > 0)
-		_scaleX = -(_scaleX);
-}
-//==================================================================================
-CollisionResult Entity3D::checkCollision(Entity3D& toCheck){
-	/*float overlapX = max(0.0f,
-		min(posX() + fabs(scaleX()) / 2.0f, toCheck.posX() + fabs(toCheck.scaleX()) / 2.0f) -
-		max(posX() - fabs(scaleX()) / 2.0f, toCheck.posX() - fabs(toCheck.scaleX()) / 2.0f));
-
-	float overlapY = max(0.0f,
-		min(posY() + fabs(scaleY()) / 2.0f, toCheck.posY() + fabs(toCheck.scaleY()) / 2.0f) -
-		max(posY() - fabs(scaleY()) / 2.0f, toCheck.posY() - fabs(toCheck.scaleY()) / 2.0f));
-
-	if (overlapX != 0.0f && overlapY != 0.0f)
-	{
-		if (overlapX > overlapY)
-		{
-			if (posY() < 0 && posY() < toCheck.posY() || posY() > 0 && posY() < toCheck.posY()){
-				return Collision_Y_Up;
-			}
-			else if (posY() < 0 && posY() > toCheck.posY() || posY() > 0 && posY() > toCheck.posY()){
-				return Collision_Y_Down;
-			}
-		}
-		else
-		{
-			if (posX() < 0 && posX() < toCheck.posX() || posX() > 0 && posX() < toCheck.posX())
-				return Collision_X_Right;
-			else if (posX() < 0 && posX() > toCheck.posX() || posX() > 0 && posX() > toCheck.posX())
-				return Collision_X_Left;
-		}
-	}*/
-	return AllInside;
-}
-//==================================================================================
-void Entity3D::returnToPreviusPos(float fPosX, float fPosY){
-	_posX = fPosX;
-	_posY = fPosY;
-
-	updateLocalTransformation();
-}
-//==================================================================================
-void Entity3D::returnToPreviusPosH(){
-	_posX = _previusPosX;
-
-	updateLocalTransformation();
-}
-//==================================================================================
-void Entity3D::returnToPreviusPosV(){
-	_posY = _previusPosY;
 
 	updateLocalTransformation();
 }
@@ -170,6 +115,10 @@ float Entity3D::rotationZ() const{
 	return _rotationZ;
 }
 //==================================================================================
+float Entity3D::rotationW() const{
+	return _rotationW;
+}
+//==================================================================================
 float Entity3D::scaleX() const{
 	return _scaleX;
 }
@@ -203,8 +152,10 @@ void Entity3D::updateLocalTransformation(){
 	D3DXMatrixTranslation(&traslatrionMat, _posX, _posY, _posZ);
 
 	D3DXMATRIX rotationMat;
-
-	D3DXMatrixRotationYawPitchRoll(&rotationMat, _rotationY, _rotationX, _rotationZ);
+	D3DXQUATERNION quaternion;
+	quaternion.x = _rotationX;	quaternion.y = _rotationY;	quaternion.z = _rotationZ;	quaternion.w = _rotationW;
+	D3DXMatrixRotationQuaternion(&rotationMat, &quaternion);
+	//D3DXMatrixRotationYawPitchRoll(&rotationMat, _rotationY, _rotationX, _rotationZ);
 
 	D3DXMATRIX scaleMat;
 	D3DXMatrixScaling(&scaleMat, _scaleX, _scaleY, _scaleZ);
@@ -229,28 +180,6 @@ void Entity3D::updateWorldTransformation(){
 //==================================================================================
 const Matrix& Entity3D::worldMatrix() const{
 	return _worldTransformationMatrix;
-}
-//==================================================================================
-void Entity3D::setLocalMatrix(float matrix [4][4]) {
-	_transformationMatrix->_11 = matrix[0][0];
-	_transformationMatrix->_12 = matrix[0][1];
-	_transformationMatrix->_13 = matrix[0][2];
-	_transformationMatrix->_14 = matrix[0][3];
-
-	_transformationMatrix->_21 = matrix[1][0];
-	_transformationMatrix->_22 = matrix[1][1];
-	_transformationMatrix->_23 = matrix[1][2];
-	_transformationMatrix->_24 = matrix[1][3];
-
-	_transformationMatrix->_31 = matrix[2][0];
-	_transformationMatrix->_32 = matrix[2][1];
-	_transformationMatrix->_33 = matrix[2][2];
-	_transformationMatrix->_34 = matrix[2][3];
-
-	_transformationMatrix->_41 = matrix[3][0];
-	_transformationMatrix->_42 = matrix[3][1];
-	_transformationMatrix->_43 = matrix[3][2];
-	_transformationMatrix->_44 = matrix[3][3];
 }
 //==================================================================================
 const Vector3* Entity3D::getPoints() const{

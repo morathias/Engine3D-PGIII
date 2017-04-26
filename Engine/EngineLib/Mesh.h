@@ -2,6 +2,7 @@
 #define MESH_H
 //========================================================================================
 #include "Entity3D.h"
+#include "RigidBody.h"
 //========================================================================================
 using namespace std;
 //========================================================================================
@@ -28,12 +29,17 @@ public:
 						const Frustum& frustum);
 
 	DllExport void updateBV();
+
 	DllExport void setTextureId(int iTextureId, Texture texture);
+
 	DllExport void buildAABB();
+
+	DllExport void buildRigidBody(float mass);
+	DllExport void updatePhysics();
+
 	DllExport void getNames(vector<std::string>& names, std::vector<int>& lvlDeep, int lvl);
 	DllExport void updateNames(std::vector<std::string>& names, int& entityIndex);
 	DllExport void updatePolygons(int& meshPolygons);
-	DllExport void setGlobal(float matrix[4][4]);
 
 private:
 	Renderer& _renderer;
@@ -43,6 +49,7 @@ private:
 	Texture _texture;
 	const TexturedVertex* _verts;
 	int _vertexCount;
+	RigidBody* _rigidBody;
 };
 //========================================================================================
 #endif

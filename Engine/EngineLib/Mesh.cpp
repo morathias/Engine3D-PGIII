@@ -3,14 +3,16 @@
 #include "pg2_vertexbuffer.h"
 #include "BoundingBox.h"
 #include "Debuger.h"
+#include "Physics.h"
 #include <algorithm>
 #include <iostream>
-//=====================================================
+//============================================================================================================
 Mesh::Mesh(Renderer& renderer):
 	_renderer (renderer),
-	_texture (NoTexture)
+	_texture (NoTexture),
+	_rigidBody(NULL)
 {}
-//=====================================================
+//============================================================================================================
 Mesh::~Mesh(){
 	delete _vertexBuffer;
 	_vertexBuffer = NULL;
@@ -18,8 +20,10 @@ Mesh::~Mesh(){
 	_indexBuffer = NULL;
 	delete _boundingBox;
 	_boundingBox = NULL;
+
+	Physics::removeRigidBody(*_rigidBody);
 }
-//=====================================================
+//============================================================================================================
 void Mesh::setMeshData(const TexturedVertex* texVertex, 
 					   Primitive ePrimitive, 
 					   size_t uiVertexCount, 
@@ -40,7 +44,7 @@ void Mesh::setMeshData(const TexturedVertex* texVertex,
 
 	_vertexCount = uiVertexCount;
 }
-//=====================================================
+//============================================================================================================
 void Mesh::setMeshData(const Vertex* texVertex,
 					   Primitive ePrimitive,
 					   size_t uiVertexCount,
@@ -60,7 +64,7 @@ void Mesh::setMeshData(const Vertex* texVertex,
 
 	_vertexCount = uiVertexCount;
 }
-//=====================================================
+//============================================================================================================
 void Mesh::draw(Renderer& renderer, CollisionResult parentResult,
 	const Frustum& frustum){
 	if (parentResult != CollisionResult::AllOutside){
@@ -81,11 +85,11 @@ void Mesh::draw(Renderer& renderer, CollisionResult parentResult,
 	else
 		_isDrawn = false;
 }
-//=====================================================
+//============================================================================================================
 void Mesh::setTextureId(int iTextureId, Texture texture){
 	_texture = texture;
 }
-//=====================================================
+//============================================================================================================
 void Mesh::updateBV(){
 	D3DXVECTOR3 pos, scale;
 	D3DXQUATERNION rot;
@@ -113,7 +117,7 @@ void Mesh::updateBV(){
 
 	_boundingBox->updateBox(_aabb, pos.x, pos.y, pos.z, scale.x, scale.y, scale.z);
 }
-//=====================================================
+//============================================================================================================
 void Mesh::buildAABB(){
 	_aabb.minPointX = _verts[0].x; _aabb.minPointY = _verts[0].y; _aabb.minPointZ = _verts[0].z;
 	_aabb.maxPointX = _verts[0].x; _aabb.maxPointY = _verts[0].y; _aabb.maxPointZ = _verts[0].z;
@@ -137,42 +141,35 @@ void Mesh::buildAABB(){
 	_boundingBox = new BoundingBox(_renderer);
 	_boundingBox->buildBox(_aabb);
 }
-//=====================================================
+//============================================================================================================
+void Mesh::buildRigidBody(float mass){
+	_rigidBody = new RigidBody();
+	_rigidBody->create(mass, _posX, _posY, _posZ, _aabb.maxPointX, _aabb.maxPointY, _aabb.maxPointZ);
+	Physics::addRigidBody(*_rigidBody);
+}
+//============================================================================================================
+void Mesh::updatePhysics(){
+	setPosX(_posX + _rigidBody->getPosX());
+	setPosY(_posY + _rigidBody->getPosY());
+	setPosZ(_posZ + _rigidBody->getPosZ());
+
+	std::cout << "X: " << _posX + _rigidBody->getPosX() << " Y: " << _posY + _rigidBody->getPosY() << " Z: " << _posZ + _rigidBody->getPosZ()<<std::endl;
+}
+//============================================================================================================
 void Mesh::getNames(vector<string>& names, std::vector<int>& lvlDeep, int lvl){
 	names.push_back(getName());
 	lvl++;
 	lvlDeep.push_back(lvl);
 }
-//=====================================================
+//============================================================================================================
 void Mesh::updateNames(std::vector<std::string>& names, int& entityIndex){
 	names[entityIndex] = getName();
 }
-//=====================================================
+//============================================================================================================
 void Mesh::updatePolygons(int& meshPolygons) {
 	if (_isDrawn)
 		meshPolygons += _vertexCount;
 	else
 		meshPolygons += 0;
 }
-//=====================================================================
-void Mesh::setGlobal(float matrix[4][4]) {
-	_worldTransformationMatrix->_11 = matrix[0][0];
-	_worldTransformationMatrix->_12 = matrix[0][1];
-	_worldTransformationMatrix->_13 = matrix[0][2];
-	_worldTransformationMatrix->_14 = matrix[0][3];
-
-	_worldTransformationMatrix->_21 = matrix[1][0];
-	_worldTransformationMatrix->_22 = matrix[1][1];
-	_worldTransformationMatrix->_23 = matrix[1][2];
-	_worldTransformationMatrix->_24 = matrix[1][3];
-
-	_worldTransformationMatrix->_31 = matrix[2][0];
-	_worldTransformationMatrix->_32 = matrix[2][1];
-	_worldTransformationMatrix->_33 = matrix[2][2];
-	_worldTransformationMatrix->_34 = matrix[2][3];
-
-	_worldTransformationMatrix->_41 = matrix[3][0];
-	_worldTransformationMatrix->_42 = matrix[3][1];
-	_worldTransformationMatrix->_43 = matrix[3][2];
-	_worldTransformationMatrix->_44 = matrix[3][3];
-}
+//============================================================================================================

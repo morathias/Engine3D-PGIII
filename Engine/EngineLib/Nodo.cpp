@@ -112,6 +112,13 @@ void Nodo::updateBV(){
 	_aabb.points[7]->x = newMaxPointX;	_aabb.points[7]->y = newMinPointY;	_aabb.points[7]->z = newMaxPointZ;
 }
 //=====================================================================
+void Nodo::updatePhysics(){
+	for (size_t i = 0; i < _childs.size(); i++)
+	{
+		_childs[i]->updatePhysics();
+	}
+}
+//=====================================================================
 void Nodo::getNames(vector<string>& names, std::vector<int>& lvlDeep, int lvl){
 	names.push_back(getName());
 	lvl++;

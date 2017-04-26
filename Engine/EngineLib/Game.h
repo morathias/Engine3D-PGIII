@@ -13,6 +13,7 @@
 #include "Utility.h"
 #include "Importer.h"
 #include "Nodo.h"
+#include "BspTree.h"
 #include "Debuger.h"
 //========================================================================================
 class Input;
@@ -22,6 +23,7 @@ public:
 	DllExport Game();
 	DllExport virtual bool init(Renderer& rkRenderer) = 0;
 	DllExport virtual void frame(Renderer& rkRenderer, Input& rkInput, pg1::Timer& timer) = 0;
+	DllExport virtual void fixedFrame(Input& input) = 0;
 	DllExport virtual void deinit() = 0;
 	DllExport bool isDone() const;
 	DllExport void setDone(bool bDone);

@@ -75,7 +75,7 @@ bool Renderer::init(HWND hWnd, unsigned int uiW, unsigned int uiH){
 	d3dpp.Windowed = TRUE;
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.hDeviceWindow = hWnd;
-	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
 	d3dpp.EnableAutoDepthStencil = TRUE;
 	d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 	//------------------device creation-------------------------------------
@@ -92,7 +92,7 @@ bool Renderer::init(HWND hWnd, unsigned int uiW, unsigned int uiH){
 	m_pkDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 	m_pkDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	m_pkDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	m_pkDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	//m_pkDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	m_pkDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 	m_pkDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
 	//-----------------viewport creation-----------------------------------

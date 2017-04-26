@@ -43,12 +43,12 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(SolutionDir)/EngineLib/Assimp/include;$(SolutionDir)/EngineLib/Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)/EngineLib/Bullet_Physics;$(SolutionDir)/EngineLib/Assimp/include;$(SolutionDir)/EngineLib/Include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)/EngineLib/Assimp/lib/x86;$(SolutionDir)/EngineLib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>dxguid.lib;assimp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>dxguid.lib;assimp.lib;BulletCollision_Debug.lib;BulletDynamics_Debug.lib;LinearMath_Debug.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -70,6 +70,8 @@
   <ItemGroup>
     <ClCompile Include="Animation.cpp" />
     <ClCompile Include="BoundingBox.cpp" />
+    <ClCompile Include="BspNode.cpp" />
+    <ClCompile Include="BspTree.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Debuger.cpp" />
     <ClCompile Include="directinput.cpp" />
@@ -91,6 +93,7 @@
     <ClCompile Include="Quad.cpp" />
     <ClCompile Include="Random.cpp" />
     <ClCompile Include="Renderer.cpp" />
+    <ClCompile Include="RigidBody.cpp" />
     <ClCompile Include="ScreenText.cpp" />
     <ClCompile Include="Sound.cpp" />
     <ClCompile Include="Sprite.cpp" />
@@ -104,6 +107,8 @@
   <ItemGroup>
     <ClInclude Include="Animation.h" />
     <ClInclude Include="BoundingBox.h" />
+    <ClInclude Include="BspNode.h" />
+    <ClInclude Include="BspTree.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Debuger.h" />
     <ClInclude Include="directinput.h" />
@@ -126,6 +131,7 @@
     <ClInclude Include="Quad.h" />
     <ClInclude Include="Random.h" />
     <ClInclude Include="Renderer.h" />
+    <ClInclude Include="RigidBody.h" />
     <ClInclude Include="ScreenText.h" />
     <ClInclude Include="Sound.h" />
     <ClInclude Include="Sprite.h" />

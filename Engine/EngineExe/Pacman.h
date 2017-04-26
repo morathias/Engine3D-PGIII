@@ -5,27 +5,23 @@
 #include <vector>
 #include <list>
 #include "Game.h"
-#include "TileMap.h"
 //==================================================================================
 using namespace std;
 //==================================================================================
 class Pacman : public Game{
 public:
 	bool init(Renderer& rkRenderer);
+
 	void frame(Renderer& rkRenderer, Input& input, pg1::Timer& timer);
+	void fixedFrame(Input& input);
+
 	void deinit();
 
 private:
 	Camera* camera;
 	Nodo _root;
-
 	Importer* _importer;
-	Mesh* _max; Mesh* _min;
-
-	ScreenText* _screenText;
-	list <string> meshNames;
-	vector <string> names;
-	string _text;
+	BspTree _bspTree;
 };
 //==================================================================================
 #endif

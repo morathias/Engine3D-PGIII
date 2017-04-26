@@ -1,4 +1,5 @@
 #include "Importer.h"
+#include "BspTree.h"
 #include "Utility.h"
 #include "Debuger.h"
 #include "assimp\Importer.hpp"
@@ -19,33 +20,23 @@ bool Importer::importScene(const std::string& fileName, Nodo& rootNode){
 	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) return false;
 
 	processNode(rootNode, *scene->mRootNode, *scene);
-	rootNode.setRotation(0, 0, 0);
+
 	Debuger::setScene(rootNode);
 	return true;
 }
 //=============================================================================================================
 bool Importer::processNode(Nodo& nodo, aiNode& assimpNode, const aiScene& scene){
 	nodo.setName(assimpNode.mName.C_Str());
-	//cout << nodo.getName() << endl;
 
 	aiVector3t<float> position, scaling;
 	aiQuaterniont<float> rotation;
 	assimpNode.mTransformation.Decompose(scaling, rotation, position);
 
-	/*float matrix[4][4] = { assimpNode.mTransformation.a1, assimpNode.mTransformation.a2, assimpNode.mTransformation.a3, assimpNode.mTransformation.a4,
-							assimpNode.mTransformation.b1, assimpNode.mTransformation.b2, assimpNode.mTransformation.b3, assimpNode.mTransformation.b4,
-							assimpNode.mTransformation.c1, assimpNode.mTransformation.c2, assimpNode.mTransformation.c3, assimpNode.mTransformation.c4,
-							assimpNode.mTransformation.d1, assimpNode.mTransformation.d2, assimpNode.mTransformation.d3, assimpNode.mTransformation.d4 };
-
-	decomposedMatrix decomposedMatrix = _renderer.decomposeMatrix(matrix);*/
-
 	nodo.setPosX(position.x);
 	nodo.setPosY(position.y);
 	nodo.setPosZ(position.z);
 	nodo.setScale(scaling.x, scaling.y, scaling.z);
-	nodo.setRotation(rotation.x, rotation.y, rotation.z);
-	//cout << nodo.rotationX() << " " << nodo.rotationY() << " " << nodo.rotationZ() << endl;
-	//nodo.updateWorldTransformation();
+	nodo.setRotation(rotation.x, rotation.y, rotation.z, rotation.w);
 
 	for (size_t j = 0; j < assimpNode.mNumMeshes; j++){
 		Mesh& mesh = processMesh(*scene.mMeshes[assimpNode.mMeshes[j]], assimpNode, scene);
@@ -70,7 +61,6 @@ Mesh& Importer::processMesh(aiMesh& assimpMesh, aiNode& assimpNode, const aiScen
 	string name = assimpNode.mName.C_Str();
 	mesh->setName(name + "_mesh");
 	
-	//cout << mesh->getName() << endl;
 	TexturedVertex* verts = new TexturedVertex[assimpMesh.mNumVertices];
 	if (assimpMesh.HasTextureCoords(0)){
 		for (size_t i = 0; i < assimpMesh.mNumVertices; i++)
@@ -109,20 +99,29 @@ Mesh& Importer::processMesh(aiMesh& assimpMesh, aiNode& assimpNode, const aiScen
 	aiVector3t<float> position, scaling;
 	aiQuaterniont<float> rotation;
 	assimpNode.mTransformation.Decompose(scaling, rotation, position);
-	
-	/*float matrix [4][4] = {assimpNode.mTransformation.a1, assimpNode.mTransformation.a2, assimpNode.mTransformation.a3, assimpNode.mTransformation.a4,
-						   assimpNode.mTransformation.b1, assimpNode.mTransformation.b2, assimpNode.mTransformation.b3, assimpNode.mTransformation.b4,
-						   assimpNode.mTransformation.c1, assimpNode.mTransformation.c2, assimpNode.mTransformation.c3, assimpNode.mTransformation.c4,
-						   assimpNode.mTransformation.d1, assimpNode.mTransformation.d2, assimpNode.mTransformation.d3, assimpNode.mTransformation.d4};
-	
-	decomposedMatrix decomposedMatrix = _renderer.decomposeMatrix(matrix);*/
 
 	mesh->setPosX(position.x);
 	mesh->setPosY(position.y);
 	mesh->setPosZ(position.z);
 	mesh->setScale(scaling.x, scaling.y, scaling.z);
-	mesh->setRotation(rotation.x, rotation.y, rotation.z);
-	//cout << mesh->rotationX() << " " << mesh->rotationY() << " " << mesh->rotationZ() << endl;
+	mesh->setRotation(rotation.x, rotation.y, rotation.z, rotation.w);
+
+	if (Utility::containsWord(mesh->getName(), "bsp")){
+		BspNode* bspNode = new BspNode();
+
+		float pointA[3], pointB[3], pointC[3];
+
+		pointA[0] = verts[0].x + position.x;	pointA[1] = verts[0].y + position.y; pointA[2] = verts[0].z + position.z;
+		pointB[0] = verts[1].x + position.x;	pointB[1] = verts[1].y + position.y; pointB[2] = verts[1].z + position.z;
+		pointC[0] = verts[2].x + position.x;	pointC[1] = verts[2].y + position.y; pointC[2] = verts[2].z + position.z;
+
+		bspNode->buildPlane(pointA, pointB, pointC);
+		bspNode->setName(mesh->getName());
+
+		BspTree::addNode(*bspNode);
+	}
+
+	mesh->buildRigidBody(1.);
 	
 	mesh->updateWorldTransformation();
 	mesh->updateBV();

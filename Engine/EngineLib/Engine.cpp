@@ -12,7 +12,8 @@ Engine::Engine(HINSTANCE hinst, unsigned int uiW, unsigned int uiH)
 	uiWidth(uiW),
 	uiHeight(uiH),
 	_timer(new pg1::Timer),
-	_debuger(new Debuger(*r, *_timer))
+	_debuger(new Debuger(*r, *_timer)),
+	_physics(new Physics)
 {
 	AllocConsole();
 	freopen("CONIN$", "r",stdin);
@@ -33,6 +34,7 @@ Engine::~Engine(){
 	_timer = NULL;
 	delete _debuger;
 	_debuger = NULL;
+	delete _physics;
 }
 //==================================================================================
 bool Engine::init(){
@@ -45,8 +47,12 @@ bool Engine::init(){
 	if (!i->init(hinstance, w->hWnd))
 		return false;
 	//------------------------------------------
+	_physics->init();
+	//------------------------------------------
 	if (!g->init(*r))
 		return false;
+	//------------------------------------------
+	_physics->addBtRigidBodies();
 	//------------------------------------------
 	if (_timer)	_timer->firstMeasure();
 
@@ -64,13 +70,15 @@ void Engine::run(){
 	while (!g->isDone())
 	{
 		i->reacquire();
-
+		
 		r->beginFrame();
-
+		_physics->update();
+		g->fixedFrame(*i);
 		g->frame(*r, *i, *_timer);
 		_debuger->updateScene();
 		_timer->measure();
-
+		_physics->removeBtRigidBody();
+		
 		r->endFrame();
 
 		if (PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE)){
