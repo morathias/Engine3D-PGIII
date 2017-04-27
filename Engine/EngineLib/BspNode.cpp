@@ -11,7 +11,7 @@ BspPlane::~BspPlane(){
 	delete plane;
 }
 //==================================================================
-void BspPlane::create(float pointA[3], float pointB[3], float pointC[3]){
+void BspPlane::create(float pointA[3], float pointB[3], float pointC[3], Mesh& mesh){
 	D3DXVECTOR3 vecA, vecB, vecC;
 	vecA.x = pointA[0];	vecA.y = pointA[1]; vecA.z = pointA[2];
 	vecB.x = pointB[0];	vecB.y = pointB[1]; vecB.z = pointB[2];
@@ -20,7 +20,12 @@ void BspPlane::create(float pointA[3], float pointB[3], float pointC[3]){
 	plane = new D3DXPLANE();
 
 	plane = D3DXPlaneFromPoints(plane, &vecA, &vecB, &vecC);
-	//D3DXPlaneNormalize(plane, plane);
+
+	position = new D3DXVECTOR3();
+	position->x = mesh.posX();
+	position->y = mesh.posY();
+	position->z = mesh.posZ();
+	D3DXPlaneNormalize(plane, plane);
 }
 //==================================================================
 BspNode::BspNode():
@@ -31,8 +36,8 @@ BspNode::~BspNode(){
 	delete _bspPlane;
 }
 //==================================================================
-void BspNode::buildPlane(float pointA[3], float pointB[3], float pointC[3]){
-	_bspPlane->create(pointA, pointB, pointC);
+void BspNode::buildPlane(float pointA[3], float pointB[3], float pointC[3], Mesh& planeMesh){
+	_bspPlane->create(pointA, pointB, pointC, planeMesh);
 }
 //==================================================================
 void BspNode::addFrontNode(BspNode& frontNode){
@@ -53,21 +58,32 @@ void BspNode::checkBspNodes(vector<BspNode*>& nodes){
 		return;
 
 	//get normal direction of current plane
-	D3DXVECTOR3 thisNormal;
+	D3DXVECTOR3 thisNormal, nonAbThisNormal;
 	thisNormal.x = abs(_bspPlane->plane->a);
 	thisNormal.y = abs(_bspPlane->plane->b);
 	thisNormal.z = abs(_bspPlane->plane->c);
 	D3DXVec3Normalize(&thisNormal, &thisNormal);
 
+	nonAbThisNormal.x = _bspPlane->plane->a;
+	nonAbThisNormal.y = _bspPlane->plane->b;
+	nonAbThisNormal.z = _bspPlane->plane->c;
+	D3DXVec3Normalize(&nonAbThisNormal, &nonAbThisNormal);
+
 	//start checking with other planes
 	for (size_t i = 1; i < nodes.size(); i++){
 
 		//get other plane normal direction
-		D3DXVECTOR3 normal;
+		D3DXVECTOR3 normal, nonAbNormal;
+
 		normal.x = abs(nodes[i]->getBspPlane().plane->a);
 		normal.y = abs(nodes[i]->getBspPlane().plane->b);
 		normal.z = abs(nodes[i]->getBspPlane().plane->c);
 		D3DXVec3Normalize(&normal, &normal);
+
+		nonAbNormal.x = nodes[i]->getBspPlane().plane->a;
+		nonAbNormal.y = nodes[i]->getBspPlane().plane->b;
+		nonAbNormal.z = nodes[i]->getBspPlane().plane->c;
+		D3DXVec3Normalize(&nonAbNormal, &nonAbNormal);
 
 		//if they are not parallel, then they are intersecting so add node to front and back
 		if (normal != thisNormal){
@@ -76,7 +92,9 @@ void BspNode::checkBspNodes(vector<BspNode*>& nodes){
 		}
 
 		else{
-			float dist = D3DXPlaneDotNormal(_bspPlane->plane, &normal);
+			float dist = D3DXPlaneDotCoord(_bspPlane->plane, nodes[i]->getBspPlane().position);
+
+			if (nonAbNormal != nonAbThisNormal)	dist *= -1;
 
 			if (dist > 0)
 				addFrontNode(*nodes[i]);

@@ -59,16 +59,13 @@ public:
 
 		for (size_t i = 0; i < wordToCheck.size(); i++){
 			if (index == keyWord.size())
-				break;
+				return true;
 
 			if (wordToCheck[i] == keyWord[index])
 				index++;
 			else
 				index = 0;
 		}
-
-		if (index == keyWord.size())
-			return true;
 
 		return false;
 	}

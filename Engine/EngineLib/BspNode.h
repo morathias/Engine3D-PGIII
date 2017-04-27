@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "DLLExport.h"
-#include "Entity3D.h"
+#include "Mesh.h"
 
 using namespace std;
 //====================================================================
@@ -15,9 +15,10 @@ public:
 	BspPlane();
 	~BspPlane();
 
-	void create(float pointA[3], float pointB[3], float pointC[3]);
+	void create(float pointA[3], float pointB[3], float pointC[3], Mesh& mesh);
 
 	Plane plane;
+	Vector3 position;
 };
 //====================================================================
 class BspNode{
@@ -25,7 +26,7 @@ public:
 	BspNode();
 	~BspNode();
 
-	void buildPlane(float pointA[3], float pointB[3], float pointC[3]);
+	void buildPlane(float pointA[3], float pointB[3], float pointC[3], Mesh& planeMesh);
 
 	void addFrontNode(BspNode& frontNode);
 	void addBackNode(BspNode& backNode);

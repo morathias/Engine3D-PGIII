@@ -115,7 +115,7 @@ Mesh& Importer::processMesh(aiMesh& assimpMesh, aiNode& assimpNode, const aiScen
 		pointB[0] = verts[1].x + position.x;	pointB[1] = verts[1].y + position.y; pointB[2] = verts[1].z + position.z;
 		pointC[0] = verts[2].x + position.x;	pointC[1] = verts[2].y + position.y; pointC[2] = verts[2].z + position.z;
 
-		bspNode->buildPlane(pointA, pointB, pointC);
+		bspNode->buildPlane(pointA, pointB, pointC, *mesh);
 		bspNode->setName(mesh->getName());
 
 		BspTree::addNode(*bspNode);
