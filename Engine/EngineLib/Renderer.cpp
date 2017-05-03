@@ -75,7 +75,7 @@ bool Renderer::init(HWND hWnd, unsigned int uiW, unsigned int uiH){
 	d3dpp.Windowed = TRUE;
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.hDeviceWindow = hWnd;
-	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 	d3dpp.EnableAutoDepthStencil = TRUE;
 	d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
 	//------------------device creation-------------------------------------

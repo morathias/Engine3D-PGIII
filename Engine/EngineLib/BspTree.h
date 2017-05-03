@@ -13,7 +13,7 @@ public:
 	DllExport static void addNode(BspNode& node);
 	void addBspNodes();
 
-	DllExport void checkEntity(Entity3D& entity);
+	DllExport void testBsp(Nodo& root, Camera& camera);
 
 private:
 	static vector<BspNode*> _staticNodes;

@@ -24,6 +24,8 @@ public:
 
 	DllExport void updatePhysics();
 
+	void testBsp(BspNode* node, Camera& camera);
+
 	void getNames(vector<std::string>& names, std::vector<int>& lvlDeep, int lvl);
 	void updateNames(std::vector<std::string>& names, int& entityIndex);
 

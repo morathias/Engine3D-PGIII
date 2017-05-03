@@ -127,3 +127,13 @@ void Camera::updateFrustum(Renderer& renderer){
 	_frustum->buildFrustum(_viewMatrix, renderer.getProjectionMatrix());
 }
 //==================================================================================
+float Camera::posX() const{
+	return _eye->x;
+}
+float Camera::posY() const{
+	return _eye->y;
+}
+float Camera::posZ() const{
+	return _eye->z;
+}
+//==================================================================================

@@ -5,6 +5,7 @@
 #include <iostream>
 #include <d3dx9.h>
 #include "BoundingBox.h"
+#include "BspNode.h"
 //=====================================================================
 using namespace std;
 //=====================================================================
@@ -149,5 +150,10 @@ Entity3D& Nodo::findEntity(string name){
 			return *_childs[i];
 	}
 	//return _childs[i]->findEntity(name);
+}
+//=====================================================================
+void Nodo::testBsp(BspNode* node, Camera& camera){
+	for (size_t i = 0; i < _childs.size(); i++)
+		_childs[i]->testBsp(node, camera);
 }
 //=====================================================================

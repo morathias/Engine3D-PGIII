@@ -48,10 +48,6 @@ void BspNode::addBackNode(BspNode& backNode){
 	_backNodes.push_back(&backNode);
 }
 //==================================================================
-BspResult BspNode::checkEntity(Entity3D& entity){
-	return Back;
-}
-//==================================================================
 void BspNode::checkBspNodes(vector<BspNode*>& nodes){
 	//if is not a leaf node
 	if (nodes.size() < 2)
@@ -80,25 +76,25 @@ void BspNode::checkBspNodes(vector<BspNode*>& nodes){
 		normal.z = abs(nodes[i]->getBspPlane().plane->c);
 		D3DXVec3Normalize(&normal, &normal);
 
-		nonAbNormal.x = nodes[i]->getBspPlane().plane->a;
-		nonAbNormal.y = nodes[i]->getBspPlane().plane->b;
-		nonAbNormal.z = nodes[i]->getBspPlane().plane->c;
-		D3DXVec3Normalize(&nonAbNormal, &nonAbNormal);
-
 		//if they are not parallel, then they are intersecting so add node to front and back
 		if (normal != thisNormal){
-			addBackNode(*nodes[i]);
+			BspNode* newNode = new BspNode();
+
+			*newNode = *nodes[i];
+			newNode->setName(nodes[i]->getName() + std::to_string(1));
+			addBackNode(*newNode);
 			addFrontNode(*nodes[i]);
 		}
 
 		else{
-			float dist = D3DXPlaneDotCoord(_bspPlane->plane, nodes[i]->getBspPlane().position);
+			D3DXVECTOR3 direction;
+			direction = *_bspPlane->position - *nodes[i]->getBspPlane().position;
 
-			if (nonAbNormal != nonAbThisNormal)	dist *= -1;
+			float dist = D3DXVec3Dot(&direction, &nonAbThisNormal);
 
-			if (dist > 0)
+			if (dist > 0.001)
 				addFrontNode(*nodes[i]);
-			else
+			else if (dist < -0.001)
 				addBackNode(*nodes[i]);
 		}
 	}
@@ -123,5 +119,95 @@ void BspNode::setName(string name){
 //==================================================================
 string BspNode::getName(){
 	return _name;
+}
+//==================================================================
+vector<BspNode*>& BspNode::getFrontNodes(){
+	return _frontNodes;
+}
+//==================================================================
+vector<BspNode*>& BspNode::getBackNodes(){
+	return _backNodes;
+}
+//==================================================================
+void BspNode::checkEntity(Mesh& mesh, Camera& camera){
+	D3DXVECTOR3 entityPosition, direction;
+	entityPosition.x = mesh.posX();
+	entityPosition.y = mesh.posY();
+	entityPosition.z = mesh.posZ();
+
+	direction = *_bspPlane->position - entityPosition;
+
+	D3DXVECTOR3 cameraPosition, cameraDirection;
+	cameraPosition.x = camera.posX();
+	cameraPosition.y = camera.posY();
+	cameraPosition.z = camera.posZ();
+
+	cameraDirection = *_bspPlane->position - cameraPosition;
+
+	D3DXVECTOR3 thisNormal;
+	thisNormal.x = _bspPlane->plane->a;
+	thisNormal.y = _bspPlane->plane->b;
+	thisNormal.z = _bspPlane->plane->c;
+	D3DXVec3Normalize(&thisNormal, &thisNormal);
+
+	float dist = D3DXVec3Dot(&direction, &thisNormal);
+	float cameraDist = D3DXVec3Dot(&cameraDirection, &thisNormal);
+
+	if (_frontNodes.empty() && _backNodes.empty()){
+		//std::cout << entity.getName() << " llego a la leaf " << _name << std::endl;
+		if (dist > 0.001){
+			if (cameraDist < -0.001){
+				//std::cout << mesh.getName() << " al frente de leaf " << _name << std::endl;
+				mesh.bspKill();
+				return;
+			}
+
+			return;
+		}
+
+		else if (dist < -0.001){
+			if (cameraDist > 0.001){
+				//std::cout << mesh.getName() << " detras de leaf " << _name << std::endl;
+				mesh.bspKill();
+				return;
+			}
+
+			return;
+		}
+	}
+
+	if (dist > 0.001){
+
+		if (cameraDist > 0.001){
+			if (_frontNodes.empty()){
+				std::cout << mesh.getName() << " al frente de " << _name << std::endl;
+				return;
+			}
+			else
+				_frontNodes[0]->checkEntity(mesh, camera);
+		}
+
+		else{
+			mesh.bspKill();
+			return;
+		}
+	}
+
+	else if (dist < -0.001){
+
+		if (cameraDist < -0.001){
+			if (_backNodes.empty()){
+				std::cout << mesh.getName() << " detras de " << _name << std::endl;
+				return;
+			}
+			else
+				_backNodes[0]->checkEntity(mesh, camera);
+		}
+
+		else{
+			mesh.bspKill();
+			return;
+		}
+	}
 }
 //==================================================================

@@ -4,7 +4,7 @@
 //==================================================================================
 bool Pacman::init(Renderer& rkRenderer){	
 	camera = new Camera();
-	camera->setPos(0, 0, -10);
+	camera->setPos(-10, 0, 0);
 
 	_importer = new Importer(rkRenderer);
 	if (!_importer->importScene("Assets/untitled.dae", _root))
@@ -19,19 +19,14 @@ bool Pacman::init(Renderer& rkRenderer){
 bool shown = true;
 void Pacman::frame(Renderer& rkRenderer, Input& input, pg1::Timer& timer){
 	//Movimiento de la camara
-	if (input.keyDown(Input::KEY_H)){
+	if (input.keyDown(Input::KEY_D))
 		camera->strafe(10.0f * (timer.timeBetweenFrames() / 1000.0f));
-	}
-	else if (input.keyDown(Input::KEY_F)){
+	else if (input.keyDown(Input::KEY_A))
 		camera->strafe(-10.0f * (timer.timeBetweenFrames() / 1000.0f));
-	}
-
-	if (input.keyDown(Input::KEY_T)){
+	if (input.keyDown(Input::KEY_W))
 		camera->walk(10.0f * (timer.timeBetweenFrames() / 1000.0f));
-	}
-	else if (input.keyDown(Input::KEY_G)) {
+	else if (input.keyDown(Input::KEY_S))
 		camera->walk(-10.0f * (timer.timeBetweenFrames() / 1000.0f));
-	}
 
 	camera->yaw(input.mouseRelPosX() * 0.005f);
 	camera->pitch(input.mouseRelPosY() * 0.005f);
@@ -45,6 +40,7 @@ void Pacman::frame(Renderer& rkRenderer, Input& input, pg1::Timer& timer){
 	}
 	Debuger::showBoundignBox(shown);
 
+	_bspTree.testBsp(_root, *camera);
 	_root.updateBV();
 	_root.draw(rkRenderer, PartiallyInside, camera->getFrustum());
 }

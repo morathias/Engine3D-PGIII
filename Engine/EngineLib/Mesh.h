@@ -6,8 +6,7 @@
 //========================================================================================
 using namespace std;
 //========================================================================================
-class Mesh : public Entity3D
-{
+class Mesh : public Entity3D{
 public:
 	DllExport Mesh(Renderer& renderer);
 	DllExport ~Mesh();
@@ -34,22 +33,32 @@ public:
 
 	DllExport void buildAABB();
 
+	void testBsp(BspNode* node, Camera& camera);
+
 	DllExport void buildRigidBody(float mass);
 	DllExport void updatePhysics();
 
-	DllExport void getNames(vector<std::string>& names, std::vector<int>& lvlDeep, int lvl);
-	DllExport void updateNames(std::vector<std::string>& names, int& entityIndex);
-	DllExport void updatePolygons(int& meshPolygons);
+	void getNames(vector<std::string>& names, std::vector<int>& lvlDeep, int lvl);
+	void updateNames(std::vector<std::string>& names, int& entityIndex);
+	void updatePolygons(int& meshPolygons);
+
+	void bspKill();
 
 private:
 	Renderer& _renderer;
+
 	Primitive _primitive;
+
 	pg2::IndexBuffer* _indexBuffer;
 	pg2::VertexBuffer* _vertexBuffer;
+
 	Texture _texture;
 	const TexturedVertex* _verts;
 	int _vertexCount;
+
 	RigidBody* _rigidBody;
+
+	bool _bspSurvivor = true;
 };
 //========================================================================================
 #endif

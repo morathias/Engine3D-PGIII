@@ -20,7 +20,7 @@ void BspTree::addBspNodes(){
 		_nodes.push_back(_staticNodes[i]);
 }
 //==========================================================
-void BspTree::checkEntity(Entity3D& entity){
-
+void BspTree::testBsp(Nodo& root, Camera& camera){
+	root.testBsp(_nodes[0], camera);
 }
 //==========================================================

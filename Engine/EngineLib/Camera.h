@@ -23,6 +23,10 @@ public:
 	DllExport void setPos(float x, float y, float z);
 	DllExport void setForward(float x, float y, float z);
 
+	DllExport float posX() const;
+	DllExport float posY() const;
+	DllExport float posZ() const;
+
 	DllExport void update(Renderer& renderer);
 
 	DllExport void updateFrustum(Renderer& renderer);

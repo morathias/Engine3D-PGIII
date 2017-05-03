@@ -31,9 +31,11 @@ public:
 	void addFrontNode(BspNode& frontNode);
 	void addBackNode(BspNode& backNode);
 
-	void checkBspNodes(vector<BspNode*>& nodes);
+	vector<BspNode*>& getFrontNodes();
+	vector<BspNode*>& getBackNodes();
 
-	BspResult checkEntity(Entity3D& entity);
+	void checkBspNodes(vector<BspNode*>& nodes);
+	void checkEntity(Mesh& mesh, Camera& camera);
 
 	BspPlane& getBspPlane();
 

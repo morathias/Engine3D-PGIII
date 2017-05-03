@@ -3,14 +3,19 @@
 #include "pg2_vertexbuffer.h"
 #include "BoundingBox.h"
 #include "Debuger.h"
+#include "BspNode.h"
 #include "Physics.h"
 #include <algorithm>
 #include <iostream>
+
+#include <d3dx9.h>
+#pragma comment (lib, "d3dx9.lib") 
 //============================================================================================================
 Mesh::Mesh(Renderer& renderer):
 	_renderer (renderer),
 	_texture (NoTexture),
-	_rigidBody(NULL)
+	_rigidBody(NULL),
+	_bspSurvivor(true)
 {}
 //============================================================================================================
 Mesh::~Mesh(){
@@ -67,23 +72,28 @@ void Mesh::setMeshData(const Vertex* texVertex,
 //============================================================================================================
 void Mesh::draw(Renderer& renderer, CollisionResult parentResult,
 	const Frustum& frustum){
-	if (parentResult != CollisionResult::AllOutside){
-		_renderer.setCurrentTexture(_texture);
-		_renderer.setMatrix(MatrixType::WORLD, _worldTransformationMatrix);
+	if (_bspSurvivor){
+		if (parentResult != CollisionResult::AllOutside){
+			_renderer.setCurrentTexture(_texture);
+			_renderer.setMatrix(MatrixType::WORLD, _worldTransformationMatrix);
 
-		_vertexBuffer->bind();
-		_indexBuffer->bind();
+			_vertexBuffer->bind();
+			_indexBuffer->bind();
 
-		_renderer.drawCurrentBuffers(_primitive);
-		_isDrawn = true;
+			_renderer.drawCurrentBuffers(_primitive);
+			_isDrawn = true;
 
-		Debuger::getBatches();
+			Debuger::getBatches();
 
-		if (Debuger::boundingBoxesShown())
-			_boundingBox->draw(_renderer);
+			if (Debuger::boundingBoxesShown())
+				_boundingBox->draw(_renderer);
+		}
+		else
+			_isDrawn = false;
 	}
 	else
 		_isDrawn = false;
+	_bspSurvivor = true;
 }
 //============================================================================================================
 void Mesh::setTextureId(int iTextureId, Texture texture){
@@ -173,3 +183,61 @@ void Mesh::updatePolygons(int& meshPolygons) {
 		meshPolygons += 0;
 }
 //============================================================================================================
+void Mesh::testBsp(BspNode* node, Camera& camera){
+	D3DXVECTOR3 position, direction;
+	position.x = _posX;
+	position.y = _posY;
+	position.z = _posZ;
+
+	direction = *node->getBspPlane().position - position;
+
+	D3DXVECTOR3 cameraPosition, cameraDirection;
+	cameraPosition.x = camera.posX();
+	cameraPosition.y = camera.posY();
+	cameraPosition.z = camera.posZ();
+
+	cameraDirection = *node->getBspPlane().position - cameraPosition;
+
+	D3DXVECTOR3 planeNormal;
+	planeNormal.x = node->getBspPlane().plane->a;
+	planeNormal.y = node->getBspPlane().plane->b;
+	planeNormal.z = node->getBspPlane().plane->c;
+	D3DXVec3Normalize(&planeNormal, &planeNormal);
+
+	float dist = D3DXVec3Dot(&direction, &planeNormal);
+	float cameraDist = D3DXVec3Dot(&cameraDirection, &planeNormal);
+
+	if (dist > 0.001){
+
+		if (cameraDist > 0){
+			if (node->getFrontNodes().empty())
+				std::cout << _name << " al frente de " << node->getName() << std::endl;
+			else
+				node->getFrontNodes()[0]->checkEntity(*this, camera);
+		}
+
+		else{
+			_bspSurvivor = false;
+			return;
+		}
+	}
+
+	else if (dist < -0.001){
+
+		if (cameraDist < 0){
+			if (node->getBackNodes().empty())
+				std::cout << _name << " detras de " << node->getName() << std::endl;
+			else
+				node->getBackNodes()[0]->checkEntity(*this, camera);
+		}
+
+		else{
+			_bspSurvivor = false;
+			return;
+		}
+	}	
+}
+//============================================================================================================
+void Mesh::bspKill(){
+	_bspSurvivor = false;
+}
