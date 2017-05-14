@@ -12,6 +12,12 @@ Debuger::~Debuger(){
 		}
 	}
 
+	if (!_debugTxt.empty()){
+		for (size_t i = 0; i < _debugTxt.size(); i++){
+			delete _debugTxt[i];
+		}
+	}
+
 	delete _fpsTxt;
 	delete _batchesTxt;
 	delete _vertexCountTxt;
@@ -50,6 +56,15 @@ bool Debuger::initScene(){
 		posY += 16;
 	}
 
+	posY += 32;
+	if (!_debugTxt.empty()){
+		for (size_t i = 0; i < _debugTxt.size(); i++){
+			_debugTxt[i]->create(50, posY, 200, 16, 15, "arial", "", true, _renderer);
+
+			posY += 16;
+		}
+	}
+
 	return true;
 }
 //================================================================
@@ -84,6 +99,11 @@ void Debuger::updateScene(){
 	for (size_t i = 0; i < _namesTxt.size(); i++){
 		_namesTxt[i]->setText(_names[i]);
 		_namesTxt[i]->display(_renderer);
+	}
+
+	if (!_debugTxt.empty()){
+		for (size_t i = 0; i < _debugTxt.size(); i++)
+			_debugTxt[i]->display(_renderer);
 	}
 
 	_sceneGraphRect.drawRect(0, 54, 
@@ -121,5 +141,15 @@ void Debuger::showBspTree(bool show){
 int Debuger::_batches;
 void Debuger::getBatches(){
 	_batches++;
+}
+//================================================================
+vector<ScreenText*> Debuger::_debugTxt;
+void Debuger::createDebugText(){
+	ScreenText* _debugText = new ScreenText();
+	_debugTxt.push_back(_debugText);
+}
+//================================================================
+void Debuger::setDebugText(int index, string text){
+	_debugTxt[index]->setText(text);
 }
 //================================================================

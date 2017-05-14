@@ -130,17 +130,23 @@ vector<BspNode*>& BspNode::getBackNodes(){
 }
 //==================================================================
 void BspNode::checkEntity(Mesh& mesh, Camera& camera){
-	D3DXVECTOR3 entityPosition, direction;
-	entityPosition.x = mesh.posX();
-	entityPosition.y = mesh.posY();
-	entityPosition.z = mesh.posZ();
+	D3DXVECTOR3 entityPositionMin, directionMin, entityPositionMax, directionMax;
+	entityPositionMin.x = mesh.getAABB().min[0];
+	entityPositionMin.y = mesh.getAABB().min[2];
+	entityPositionMin.z = mesh.getAABB().min[1];
 
-	direction = *_bspPlane->position - entityPosition;
+	directionMin = *_bspPlane->position - entityPositionMin;
+
+	entityPositionMax.x = mesh.getAABB().max[0];
+	entityPositionMax.y = mesh.getAABB().max[2];
+	entityPositionMax.z = mesh.getAABB().max[1];
+
+	directionMax = *_bspPlane->position - entityPositionMax;
 
 	D3DXVECTOR3 cameraPosition, cameraDirection;
 	cameraPosition.x = camera.posX();
-	cameraPosition.y = camera.posY();
-	cameraPosition.z = camera.posZ();
+	cameraPosition.y = camera.posZ();
+	cameraPosition.z = camera.posY();
 
 	cameraDirection = *_bspPlane->position - cameraPosition;
 
@@ -150,14 +156,13 @@ void BspNode::checkEntity(Mesh& mesh, Camera& camera){
 	thisNormal.z = _bspPlane->plane->c;
 	D3DXVec3Normalize(&thisNormal, &thisNormal);
 
-	float dist = D3DXVec3Dot(&direction, &thisNormal);
+	float distMin = D3DXVec3Dot(&directionMin, &thisNormal);
+	float distMax = D3DXVec3Dot(&directionMax, &thisNormal);
 	float cameraDist = D3DXVec3Dot(&cameraDirection, &thisNormal);
 
 	if (_frontNodes.empty() && _backNodes.empty()){
-		//std::cout << entity.getName() << " llego a la leaf " << _name << std::endl;
-		if (dist > 0.001){
-			if (cameraDist < -0.001){
-				//std::cout << mesh.getName() << " al frente de leaf " << _name << std::endl;
+		if (distMin > 0 && distMax > 0){
+			if (cameraDist < 0){
 				mesh.bspKill();
 				return;
 			}
@@ -165,9 +170,8 @@ void BspNode::checkEntity(Mesh& mesh, Camera& camera){
 			return;
 		}
 
-		else if (dist < -0.001){
-			if (cameraDist > 0.001){
-				//std::cout << mesh.getName() << " detras de leaf " << _name << std::endl;
+		else if (distMin < 0 && distMax < 0){
+			if (cameraDist > 0){
 				mesh.bspKill();
 				return;
 			}
@@ -176,11 +180,10 @@ void BspNode::checkEntity(Mesh& mesh, Camera& camera){
 		}
 	}
 
-	if (dist > 0.001){
+	if (distMin > 0 && distMax > 0){
 
-		if (cameraDist > 0.001){
+		if (cameraDist > 0){
 			if (_frontNodes.empty()){
-				std::cout << mesh.getName() << " al frente de " << _name << std::endl;
 				return;
 			}
 			else
@@ -193,11 +196,10 @@ void BspNode::checkEntity(Mesh& mesh, Camera& camera){
 		}
 	}
 
-	else if (dist < -0.001){
+	else if (distMin < 0 && distMax < 0){
 
-		if (cameraDist < -0.001){
+		if (cameraDist < 0){
 			if (_backNodes.empty()){
-				std::cout << mesh.getName() << " detras de " << _name << std::endl;
 				return;
 			}
 			else

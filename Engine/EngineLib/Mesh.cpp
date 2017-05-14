@@ -184,17 +184,23 @@ void Mesh::updatePolygons(int& meshPolygons) {
 }
 //============================================================================================================
 void Mesh::testBsp(BspNode* node, Camera& camera){
-	D3DXVECTOR3 position, direction;
-	position.x = _posX;
-	position.y = _posY;
-	position.z = _posZ;
+	D3DXVECTOR3 positionMin, positionMax, directionMin, directionMax;
+	positionMin.x = _aabb.min[0];
+	positionMin.y = _aabb.min[2];
+	positionMin.z = _aabb.min[1];
 
-	direction = *node->getBspPlane().position - position;
+	directionMin = *node->getBspPlane().position - positionMin;
+
+	positionMax.x = _aabb.max[0];
+	positionMax.y = _aabb.max[2];
+	positionMax.z = _aabb.max[1];
+
+	directionMax = *node->getBspPlane().position - positionMax;
 
 	D3DXVECTOR3 cameraPosition, cameraDirection;
 	cameraPosition.x = camera.posX();
-	cameraPosition.y = camera.posY();
-	cameraPosition.z = camera.posZ();
+	cameraPosition.y = camera.posZ();
+	cameraPosition.z = camera.posY();
 
 	cameraDirection = *node->getBspPlane().position - cameraPosition;
 
@@ -204,15 +210,14 @@ void Mesh::testBsp(BspNode* node, Camera& camera){
 	planeNormal.z = node->getBspPlane().plane->c;
 	D3DXVec3Normalize(&planeNormal, &planeNormal);
 
-	float dist = D3DXVec3Dot(&direction, &planeNormal);
+	float distMin = D3DXVec3Dot(&directionMin, &planeNormal);
+	float distMax = D3DXVec3Dot(&directionMax, &planeNormal);
 	float cameraDist = D3DXVec3Dot(&cameraDirection, &planeNormal);
 
-	if (dist > 0.001){
+	if (distMin > 0 && distMax > 0){
 
 		if (cameraDist > 0){
-			if (node->getFrontNodes().empty())
-				std::cout << _name << " al frente de " << node->getName() << std::endl;
-			else
+			if (!node->getFrontNodes().empty())
 				node->getFrontNodes()[0]->checkEntity(*this, camera);
 		}
 
@@ -222,12 +227,10 @@ void Mesh::testBsp(BspNode* node, Camera& camera){
 		}
 	}
 
-	else if (dist < -0.001){
+	else if (distMin < 0 && distMax < 0){
 
 		if (cameraDist < 0){
-			if (node->getBackNodes().empty())
-				std::cout << _name << " detras de " << node->getName() << std::endl;
-			else
+			if (!node->getBackNodes().empty())
 				node->getBackNodes()[0]->checkEntity(*this, camera);
 		}
 
@@ -241,3 +244,4 @@ void Mesh::testBsp(BspNode* node, Camera& camera){
 void Mesh::bspKill(){
 	_bspSurvivor = false;
 }
+//============================================================================================================

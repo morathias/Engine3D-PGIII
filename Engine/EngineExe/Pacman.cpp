@@ -12,6 +12,9 @@ bool Pacman::init(Renderer& rkRenderer){
 
 	_bspTree.buildTree();
 
+	Debuger::createDebugText();
+	Debuger::createDebugText();
+	Debuger::createDebugText();
 	Debuger::showBoundignBox(true);
 	return true;
 }
@@ -27,6 +30,10 @@ void Pacman::frame(Renderer& rkRenderer, Input& input, pg1::Timer& timer){
 		camera->walk(10.0f * (timer.timeBetweenFrames() / 1000.0f));
 	else if (input.keyDown(Input::KEY_S))
 		camera->walk(-10.0f * (timer.timeBetweenFrames() / 1000.0f));
+	if (input.keyDown(Input::KEY_E))
+		camera->fly(10.0f * (timer.timeBetweenFrames() / 1000.0f));
+	if (input.keyDown(Input::KEY_Q))
+		camera->fly(-10.0f * (timer.timeBetweenFrames() / 1000.0f));
 
 	camera->yaw(input.mouseRelPosX() * 0.005f);
 	camera->pitch(input.mouseRelPosY() * 0.005f);
@@ -34,12 +41,24 @@ void Pacman::frame(Renderer& rkRenderer, Input& input, pg1::Timer& timer){
 
 	camera->update(rkRenderer);
 
+	if (input.keyDown(Input::KEY_LEFT))
+		_root.childs()[4]->setPosX(_root.childs()[4]->posX() - (2 * (timer.timeBetweenFrames() / 1000.0f)));
+	else if (input.keyDown(Input::KEY_RIGHT))
+		_root.childs()[4]->setPosX(_root.childs()[4]->posX() + (2 * (timer.timeBetweenFrames() / 1000.0f)));
+	if (input.keyDown(Input::KEY_UP))
+		_root.childs()[4]->setPosY(_root.childs()[4]->posY() + (2 * (timer.timeBetweenFrames() / 1000.0f)));
+	else if (input.keyDown(Input::KEY_DOWN))
+		_root.childs()[4]->setPosY(_root.childs()[4]->posY() - (2 * (timer.timeBetweenFrames() / 1000.0f)));
+
+	Debuger::setDebugText(0, "Camera posX: " + std::to_string(camera->posX()));
+	Debuger::setDebugText(1, "Camera posY: " + std::to_string(camera->posY()));
+	Debuger::setDebugText(2, "Camera posZ: " + std::to_string(camera->posZ()));
+
 	if (input.keyDown(Input::KEY_F4)){
 		if (shown) shown = false;
 		else shown = true;
 	}
 	Debuger::showBoundignBox(shown);
-
 	_bspTree.testBsp(_root, *camera);
 	_root.updateBV();
 	_root.draw(rkRenderer, PartiallyInside, camera->getFrustum());

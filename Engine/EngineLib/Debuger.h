@@ -29,6 +29,9 @@ public:
 	DllExport static void showBoundignBox(bool show);
 	DllExport static void showBspTree(bool show);
 
+	DllExport static void createDebugText();
+	DllExport static void setDebugText(int index, string text);
+
 private:
 	Renderer& _renderer;
 	pg1::Timer& _timer;
@@ -57,6 +60,8 @@ private:
 	ScreenText* _fpsTxt;
 
 	Line _sceneStatsRect;
+
+	static vector<ScreenText*> _debugTxt;
 };
 //================================================================
 #endif
