@@ -18,7 +18,6 @@ bool Importer::importScene(const std::string& fileName, Nodo& rootNode){
 
 	const aiScene* scene = importer.ReadFile(fileName, aiProcess_Triangulate | aiProcess_ConvertToLeftHanded);
 	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) return false;
-
 	processNode(rootNode, *scene->mRootNode, *scene);
 
 	Debuger::setScene(rootNode);
@@ -61,15 +60,19 @@ Mesh& Importer::processMesh(aiMesh& assimpMesh, aiNode& assimpNode, const aiScen
 	string name = assimpNode.mName.C_Str();
 	mesh->setName(name + "_mesh");
 	
-	TexturedVertex* verts = new TexturedVertex[assimpMesh.mNumVertices];
+	//TexturedVertex* verts = new TexturedVertex[assimpMesh.mNumVertices];
+	ShadedVertex* verts = new ShadedVertex[assimpMesh.mNumVertices];
 	if (assimpMesh.HasTextureCoords(0)){
 		for (size_t i = 0; i < assimpMesh.mNumVertices; i++)
 		{
 			verts[i] = { assimpMesh.mVertices[i].x,
-				assimpMesh.mVertices[i].y,
-				assimpMesh.mVertices[i].z,
-				assimpMesh.mTextureCoords[0][i].x,
-				assimpMesh.mTextureCoords[0][i].y
+						 assimpMesh.mVertices[i].y,
+						 assimpMesh.mVertices[i].z,
+						 assimpMesh.mNormals[i].x,
+						 assimpMesh.mNormals[i].y,
+						 assimpMesh.mNormals[i].z,
+						 assimpMesh.mTextureCoords[0][i].x,
+						 assimpMesh.mTextureCoords[0][i].y
 			};
 		}
 	}
@@ -77,8 +80,11 @@ Mesh& Importer::processMesh(aiMesh& assimpMesh, aiNode& assimpNode, const aiScen
 	else{
 		for (size_t i = 0; i < assimpMesh.mNumVertices; i++){
 			verts[i] = { assimpMesh.mVertices[i].x,
-				assimpMesh.mVertices[i].y,
-				assimpMesh.mVertices[i].z,
+						 assimpMesh.mVertices[i].y,
+						 assimpMesh.mVertices[i].z,
+						 assimpMesh.mNormals[i].x,
+						 assimpMesh.mNormals[i].y,
+						 assimpMesh.mNormals[i].z
 			};
 		}
 	}
@@ -125,6 +131,24 @@ Mesh& Importer::processMesh(aiMesh& assimpMesh, aiNode& assimpNode, const aiScen
 	
 	mesh->updateWorldTransformation();
 	mesh->updateBV();
+
+	aiMaterial* assimpMaterial = scene.mMaterials[assimpMesh.mMaterialIndex];
+	aiColor3D materialDiffuse; 
+	assimpMaterial->Get(AI_MATKEY_COLOR_DIFFUSE, materialDiffuse);
+	aiColor3D materialAmbient; 
+	assimpMaterial->Get(AI_MATKEY_COLOR_AMBIENT, materialAmbient);
+	aiColor3D materialSpec;
+	assimpMaterial->Get(AI_MATKEY_COLOR_SPECULAR, materialSpec);
+	float specSharpness;
+	assimpMaterial->Get(AI_MATKEY_SHININESS, specSharpness);
+	
+	Material* material = new Material();
+	material->setColor(materialDiffuse.r, materialDiffuse.g, materialDiffuse.b, 1.0f);
+	material->setAmbient(materialAmbient.r, materialAmbient.g, materialAmbient.b, 1.0f);
+	material->setSpecular(materialSpec.r, materialSpec.g, materialSpec.b);
+	material->setSpecularSharpness(specSharpness);
+
+	mesh->setMaterial(*material);
 
 	aiString path;
 	std::stack<char> _stack;

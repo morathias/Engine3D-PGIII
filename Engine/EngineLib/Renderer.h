@@ -3,6 +3,8 @@
 //========================================================================================
 #include "Utility.h"
 #include "vertexbuffer.h"
+#include "Material.h"
+#include "Light.h"
 #include <vector>
 #include <string>
 //========================================================================================
@@ -62,6 +64,10 @@ public:
 
 	DllExport const Texture loadTexture(const std::string& textureName, D3DCOLOR ColorKey);
 	DllExport void setCurrentTexture(const Texture& texture);
+	DllExport void setCurrentMaterial(const Material& material);
+
+	DllExport void addLight(const Light& light);
+	DllExport void enableLight(bool enable, Light& light);
 
 	void setMatrix(MatrixType matrixType ,const Matrix& matrix);
 
@@ -74,8 +80,6 @@ public:
 	void setCurrentVertexBuffer(pg2::VertexBuffer* vertexBuffer);
 
 	void drawCurrentBuffers(Primitive primitive);
-
-	decomposedMatrix decomposeMatrix(const float matrix[4][4]);
 
 private:
 	unsigned int uiWidth;

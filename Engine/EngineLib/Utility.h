@@ -17,6 +17,12 @@ struct TexturedVertex{
 	float u, v;
 };
 //========================================================================================
+struct ShadedVertex{
+	float x, y, z;
+	float u, v;
+	float nX, nY, nZ;
+};
+//========================================================================================
 enum Primitive{
 	POINTLIST = 0,
 	LINELIST,

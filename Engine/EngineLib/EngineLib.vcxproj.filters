@@ -102,6 +102,8 @@
     </ClCompile>
     <ClCompile Include="BspNode.cpp" />
     <ClCompile Include="BspTree.cpp" />
+    <ClCompile Include="Light.cpp" />
+    <ClCompile Include="Material.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h">
@@ -211,6 +213,8 @@
     </ClInclude>
     <ClInclude Include="BspNode.h" />
     <ClInclude Include="BspTree.h" />
+    <ClInclude Include="Light.h" />
+    <ClInclude Include="Material.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="input.inl">

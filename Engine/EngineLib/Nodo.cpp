@@ -44,6 +44,7 @@ void Nodo::updateWorldTransformation(){
 	}
 }
 //=====================================================================
+//nodo draw
 void Nodo::draw(Renderer& renderer, CollisionResult parentResult,
 	const Frustum& frustum){
 	if (!_parent) updateWorldTransformation();

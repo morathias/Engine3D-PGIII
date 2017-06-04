@@ -3,6 +3,7 @@
 //========================================================================================
 #include "Entity3D.h"
 #include "RigidBody.h"
+#include "Material.h"
 //========================================================================================
 using namespace std;
 //========================================================================================
@@ -24,12 +25,20 @@ public:
 								const unsigned short* pusIndices,
 								size_t uiIndexCount);
 
+	DllExport void setMeshData(const ShadedVertex* texVertex,
+		Primitive ePrimitive,
+		size_t uiVertexCount,
+		const unsigned short* pusIndices,
+		size_t uiIndexCount);
+
 	DllExport void draw(Renderer& renderer, CollisionResult parentResult,
 						const Frustum& frustum);
 
 	DllExport void updateBV();
 
 	DllExport void setTextureId(int iTextureId, Texture texture);
+	DllExport void setMaterial(Material& material);
+	DllExport Material& getMaterial() const;
 
 	DllExport void buildAABB();
 
@@ -53,7 +62,8 @@ private:
 	pg2::VertexBuffer* _vertexBuffer;
 
 	Texture _texture;
-	const TexturedVertex* _verts;
+	Material* _material;
+	const ShadedVertex* _verts;
 	int _vertexCount;
 
 	RigidBody* _rigidBody;

@@ -22,6 +22,7 @@ private:
 	Nodo _root;
 	Importer* _importer;
 	BspTree _bspTree;
+	Light* _light;
 };
 //==================================================================================
 #endif

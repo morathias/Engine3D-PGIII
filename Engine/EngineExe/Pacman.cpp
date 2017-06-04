@@ -4,10 +4,10 @@
 //==================================================================================
 bool Pacman::init(Renderer& rkRenderer){	
 	camera = new Camera();
-	camera->setPos(-10, 0, 0);
+	camera->setPos(0, 0, -10);
 
 	_importer = new Importer(rkRenderer);
-	if (!_importer->importScene("Assets/untitled.dae", _root))
+	if (!_importer->importScene("Assets/escena.dae", _root))
 		cout << "no se cargo escena";
 
 	_bspTree.buildTree();
@@ -16,6 +16,11 @@ bool Pacman::init(Renderer& rkRenderer){
 	Debuger::createDebugText();
 	Debuger::createDebugText();
 	Debuger::showBoundignBox(true);
+
+	_light = new Light(0);
+	_light->create();
+	rkRenderer.addLight(*_light);
+	rkRenderer.enableLight(true, *_light);
 	return true;
 }
 //==================================================================================
@@ -42,13 +47,13 @@ void Pacman::frame(Renderer& rkRenderer, Input& input, pg1::Timer& timer){
 	camera->update(rkRenderer);
 
 	if (input.keyDown(Input::KEY_LEFT))
-		_root.childs()[4]->setPosX(_root.childs()[4]->posX() - (2 * (timer.timeBetweenFrames() / 1000.0f)));
+		_root.childs()[0]->setPosX(_root.childs()[0]->posX() - (2 * (timer.timeBetweenFrames() / 1000.0f)));
 	else if (input.keyDown(Input::KEY_RIGHT))
-		_root.childs()[4]->setPosX(_root.childs()[4]->posX() + (2 * (timer.timeBetweenFrames() / 1000.0f)));
+		_root.childs()[0]->setPosX(_root.childs()[0]->posX() + (2 * (timer.timeBetweenFrames() / 1000.0f)));
 	if (input.keyDown(Input::KEY_UP))
-		_root.childs()[4]->setPosY(_root.childs()[4]->posY() + (2 * (timer.timeBetweenFrames() / 1000.0f)));
+		_root.childs()[0]->setPosY(_root.childs()[0]->posY() + (2 * (timer.timeBetweenFrames() / 1000.0f)));
 	else if (input.keyDown(Input::KEY_DOWN))
-		_root.childs()[4]->setPosY(_root.childs()[4]->posY() - (2 * (timer.timeBetweenFrames() / 1000.0f)));
+		_root.childs()[0]->setPosY(_root.childs()[0]->posY() - (2 * (timer.timeBetweenFrames() / 1000.0f)));
 
 	Debuger::setDebugText(0, "Camera posX: " + std::to_string(camera->posX()));
 	Debuger::setDebugText(1, "Camera posY: " + std::to_string(camera->posY()));

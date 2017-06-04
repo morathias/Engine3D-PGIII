@@ -14,6 +14,8 @@
 #include "Importer.h"
 #include "Nodo.h"
 #include "BspTree.h"
+#include "Light.h"
+#include "Material.h"
 #include "Debuger.h"
 //========================================================================================
 class Input;

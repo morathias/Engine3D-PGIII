@@ -13,6 +13,7 @@
 //==================================================================================
 #define CUSTOMFVF (D3DFVF_XYZ | D3DFVF_DIFFUSE)
 #define TEXTUREFVF (D3DFVF_XYZ | D3DFVF_TEX1)
+#define SHADEDFVF (D3DFVF_XYZ | D3DFVF_TEX1 | D3DFVF_NORMAL)
 //---------------------------primitive assignment-------------------------------
 D3DPRIMITIVETYPE _primitives[PRIMITIVE_COUNT] =
 {
@@ -88,13 +89,17 @@ bool Renderer::init(HWND hWnd, unsigned int uiW, unsigned int uiH){
 
 	if (hr != D3D_OK) return false;
 	//----------------------States-----------------------------------------
-	m_pkDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+	m_pkDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	m_pkDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD);
 	m_pkDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
 	m_pkDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
-	//m_pkDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
-	m_pkDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	m_pkDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	m_pkDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 	m_pkDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
+	m_pkDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(0, 0, 0));
+	m_pkDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
+	m_pkDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);
+	//m_pkDevice->SetRenderState(D3DRS_SPECULARMATERIALSOURCE, D3DMCS_MATERIAL);
 	//-----------------viewport creation-----------------------------------
 	D3DVIEWPORT9 viewport;
 	m_pkDevice->GetViewport(&viewport);
@@ -228,17 +233,39 @@ void Renderer::setCurrentTexture(const Texture& texture){
 	m_pkDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR);
 }
 //==================================================================================
+void Renderer::setCurrentMaterial(const Material& material){
+	m_pkDevice->SetMaterial(material.getD3dMaterial());
+}
+//==================================================================================
+void Renderer::addLight(const Light& light){
+	m_pkDevice->SetLight(light.getIndex(), light.getD3dLight());
+}
+//==================================================================================
+void Renderer::enableLight(bool enable, Light& light){
+	if (enable)
+		m_pkDevice->LightEnable(light.getIndex(), TRUE);
+	else
+		m_pkDevice->LightEnable(light.getIndex(), FALSE);
+}
+//==================================================================================
 Matrix& Renderer::getProjectionMatrix(){
 	return _projectionMatrix;
 }
 //==================================================================================
 pg2::VertexBuffer* Renderer::createVertexBuffer(size_t vertexSize, unsigned int fvf){
 	pg2::VertexBuffer* vertexBuffer;
-	if (fvf == 0)
-		vertexBuffer = new pg2::VertexBuffer(*this, m_pkDevice, vertexSize, TEXTUREFVF);
-	else
-		vertexBuffer = new pg2::VertexBuffer(*this, m_pkDevice, vertexSize, CUSTOMFVF);
-
+	switch (fvf){
+		case 1:
+			vertexBuffer = new pg2::VertexBuffer(*this, m_pkDevice, vertexSize, SHADEDFVF);
+			break;
+		case 2:
+			vertexBuffer = new pg2::VertexBuffer(*this, m_pkDevice, vertexSize, TEXTUREFVF);
+			break;
+		case 3:
+			vertexBuffer = new pg2::VertexBuffer(*this, m_pkDevice, vertexSize, CUSTOMFVF);
+			break;
+	}
+		
 	return vertexBuffer;
 }
 //==================================================================================
@@ -259,53 +286,3 @@ void Renderer::drawCurrentBuffers(Primitive primitive){
 	m_pkDevice->DrawIndexedPrimitive(_primitives[primitive], 0, 0, _vertexBuffer->vertexCount(), 0, _indexBuffer->indexCount() / 3);
 }
 //==================================================================================
-decomposedMatrix Renderer::decomposeMatrix(const float matrix[4][4]){
-	D3DXMATRIX dx9Matrix;
-	dx9Matrix._11 = matrix[0][0];
-	dx9Matrix._12 = matrix[0][1];
-	dx9Matrix._13 = matrix[0][2];
-	dx9Matrix._14 = matrix[0][3];
-
-	dx9Matrix._21 = matrix[1][0];
-	dx9Matrix._22 = matrix[1][1];
-	dx9Matrix._23 = matrix[1][2];
-	dx9Matrix._24 = matrix[1][3];
-
-	dx9Matrix._31 = matrix[2][0];
-	dx9Matrix._32 = matrix[2][1];
-	dx9Matrix._33 = matrix[2][2];
-	dx9Matrix._34 = matrix[2][3];
-
-	dx9Matrix._41 = matrix[3][0];
-	dx9Matrix._42 = matrix[3][1];
-	dx9Matrix._43 = matrix[3][2];
-	dx9Matrix._44 = matrix[3][3];
-	for (size_t i = 0; i < 4; i++){
-		for (size_t j = 0; j < 4; j++)
-			dx9Matrix.m[i][j] = matrix[i][j];
-	}
-
-	/*for (size_t i = 0; i < 4; i++){
-		for (size_t j = 0; j < 4; j++)
-			std::cout << " " << dx9Matrix.m[i][j];
-		std::cout << std::endl;
-	}*/
-	D3DXVECTOR3 pos, scale;
-	D3DXQUATERNION rot;
-	D3DXMatrixDecompose(&scale, &rot, &pos, &dx9Matrix);
-
-	decomposedMatrix decomposedMatrix;
-	decomposedMatrix.posX = pos.x;
-	decomposedMatrix.posY = pos.y;
-	decomposedMatrix.posZ = pos.z;
-	//std::cout << scale.x << " " << scale.y << " " << scale.z << std::endl;
-	decomposedMatrix.scaleX = scale.x;
-	decomposedMatrix.scaleY = scale.y;
-	decomposedMatrix.scaleZ = scale.z;
-
-	decomposedMatrix.rotX = rot.x;
-	decomposedMatrix.rotY = rot.y;
-	decomposedMatrix.rotZ = rot.z;
-
-	return decomposedMatrix;
-}

@@ -15,7 +15,8 @@ Mesh::Mesh(Renderer& renderer):
 	_renderer (renderer),
 	_texture (NoTexture),
 	_rigidBody(NULL),
-	_bspSurvivor(true)
+	_bspSurvivor(true),
+	_material(NULL)
 {}
 //============================================================================================================
 Mesh::~Mesh(){
@@ -29,6 +30,27 @@ Mesh::~Mesh(){
 	Physics::removeRigidBody(*_rigidBody);
 }
 //============================================================================================================
+void Mesh::setMeshData(const ShadedVertex* texVertex,
+	Primitive ePrimitive,
+	size_t uiVertexCount,
+	const unsigned short* pusIndices,
+	size_t uiIndexCount)
+{
+	_primitive = ePrimitive;
+	_verts = texVertex;
+
+	_indexBuffer = _renderer.createIndexBuffer();
+	_vertexBuffer = _renderer.createVertexBuffer(sizeof(ShadedVertex), 1);
+
+	_vertexBuffer->setVertexData(texVertex, uiVertexCount);
+	_indexBuffer->setIndexData(pusIndices, uiIndexCount);
+
+	_renderer.setCurrentIndexBuffer(_indexBuffer);
+	_renderer.setCurrentVertexBuffer(_vertexBuffer);
+
+	_vertexCount = uiVertexCount;
+}
+
 void Mesh::setMeshData(const TexturedVertex* texVertex, 
 					   Primitive ePrimitive, 
 					   size_t uiVertexCount, 
@@ -36,10 +58,10 @@ void Mesh::setMeshData(const TexturedVertex* texVertex,
 					   size_t uiIndexCount)
 {
 	_primitive = ePrimitive;
-	_verts = texVertex;
+	
 
 	_indexBuffer = _renderer.createIndexBuffer();
-	_vertexBuffer = _renderer.createVertexBuffer(sizeof(TexturedVertex), 0);
+	_vertexBuffer = _renderer.createVertexBuffer(sizeof(TexturedVertex), 2);
 
 	_vertexBuffer->setVertexData(texVertex, uiVertexCount);
 	_indexBuffer->setIndexData(pusIndices, uiIndexCount);
@@ -59,7 +81,7 @@ void Mesh::setMeshData(const Vertex* texVertex,
 	_primitive = ePrimitive;
 
 	_indexBuffer = _renderer.createIndexBuffer();
-	_vertexBuffer = _renderer.createVertexBuffer(sizeof(Vertex), 1);
+	_vertexBuffer = _renderer.createVertexBuffer(sizeof(Vertex), 3);
 
 	_vertexBuffer->setVertexData(texVertex, uiVertexCount);
 	_indexBuffer->setIndexData(pusIndices, uiIndexCount);
@@ -70,12 +92,16 @@ void Mesh::setMeshData(const Vertex* texVertex,
 	_vertexCount = uiVertexCount;
 }
 //============================================================================================================
+// mesh draw
 void Mesh::draw(Renderer& renderer, CollisionResult parentResult,
 	const Frustum& frustum){
 	if (_bspSurvivor){
 		if (parentResult != CollisionResult::AllOutside){
 			_renderer.setCurrentTexture(_texture);
 			_renderer.setMatrix(MatrixType::WORLD, _worldTransformationMatrix);
+
+			if (_material)
+				_renderer.setCurrentMaterial(*_material);
 
 			_vertexBuffer->bind();
 			_indexBuffer->bind();
@@ -164,6 +190,14 @@ void Mesh::updatePhysics(){
 	setPosZ(_posZ + _rigidBody->getPosZ());
 
 	std::cout << "X: " << _posX + _rigidBody->getPosX() << " Y: " << _posY + _rigidBody->getPosY() << " Z: " << _posZ + _rigidBody->getPosZ()<<std::endl;
+}
+
+void Mesh::setMaterial(Material& material){
+	_material = &material;
+}
+
+Material& Mesh::getMaterial() const{
+	return *_material;
 }
 //============================================================================================================
 void Mesh::getNames(vector<string>& names, std::vector<int>& lvlDeep, int lvl){
