@@ -1,5 +1,6 @@
 #include "engine.h"
 #include "pacman.h"
+#include "TaTeTi.h"
 //===============================================================================================
 using namespace std;
 //===============================================================================================
@@ -10,7 +11,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
 	Engine eng(hInstance, width, heigth);
 
-	Game* a = new Pacman();
+	Game* a = new TaTeTi();
 	eng.setGame(a);
 
 	if (!eng.init()) return 1;

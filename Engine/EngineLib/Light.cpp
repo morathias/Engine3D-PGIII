@@ -19,7 +19,7 @@ void Light::create(){
 	ZeroMemory(_d3dLight, sizeof(_d3dLight));
 
 	_d3dLight->Type = D3DLIGHT_DIRECTIONAL;
-	_d3dLight->Diffuse = D3DXCOLOR(1.0f, 0.97f, 0.74f, 1.0f);
+	_d3dLight->Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	_d3dLight->Direction = D3DXVECTOR3(1.0f, -0.5f, 1.0f);
 	_d3dLight->Specular = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 	/*_d3dLight->Range = 1000;

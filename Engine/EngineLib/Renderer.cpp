@@ -96,7 +96,7 @@ bool Renderer::init(HWND hWnd, unsigned int uiW, unsigned int uiH){
 	m_pkDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	m_pkDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 	m_pkDevice->SetRenderState(D3DRS_ZENABLE, D3DZB_TRUE);
-	m_pkDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(0, 0, 0));
+	m_pkDevice->SetRenderState(D3DRS_AMBIENT, D3DCOLOR_XRGB(255, 255, 255));
 	m_pkDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
 	m_pkDevice->SetRenderState(D3DRS_SPECULARENABLE, TRUE);
 	//m_pkDevice->SetRenderState(D3DRS_SPECULARMATERIALSOURCE, D3DMCS_MATERIAL);
@@ -108,7 +108,7 @@ bool Renderer::init(HWND hWnd, unsigned int uiW, unsigned int uiH){
 	float viewportHeight = static_cast<float>(viewport.Height);
 	//----------------orthogonal/perspective projection--------------------------------
 	//D3DXMatrixOrthoLH(&projectionMatrix, viewportWidth, viewportHeight, 0.0f, 1000.0f);
-	D3DXMatrixPerspectiveFovLH(_projectionMatrix, D3DX_PI * 0.25f, (FLOAT)viewportWidth / viewportHeight, (FLOAT)0.1f, (FLOAT)2000.0f);
+	D3DXMatrixPerspectiveFovLH(_projectionMatrix, D3DX_PI * 0.25f, (FLOAT)viewportWidth / viewportHeight, (FLOAT)1.0f, (FLOAT)2000.0f);
 	m_pkDevice->SetTransform(D3DTS_PROJECTION, _projectionMatrix);
 	//----------------vertex Buffers---------------------------------------
 	v_buffer = new pg1::VertexBuffer(m_pkDevice, sizeof(Vertex), CUSTOMFVF);
@@ -118,7 +118,7 @@ bool Renderer::init(HWND hWnd, unsigned int uiW, unsigned int uiH){
 }
 //==================================================================================
 void Renderer::beginFrame(){
-	m_pkDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(50, 50, 50), 1.0f, 0);
+	m_pkDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB(125, 201, 242), 1.0f, 0);
 	m_pkDevice->BeginScene();
 }
 //==================================================================================
@@ -222,7 +222,7 @@ const Texture Renderer::loadTexture(const std::string& textureName, D3DCOLOR Col
 	}
 
 	else{
-		MessageBox(_hwnd,"No Texture", "No Texture",MB_OK);
+		//MessageBox(_hwnd,"No Texture", "No Texture",MB_OK);
 		return NoTexture;
 	}
 }

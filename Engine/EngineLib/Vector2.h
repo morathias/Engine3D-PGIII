@@ -6,6 +6,7 @@
 class Vector2
 {
 public:
+	DllExport Vector2();
 	DllExport Vector2(float x, float y);
 	DllExport ~Vector2();
 
