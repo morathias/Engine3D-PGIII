@@ -9,6 +9,7 @@ class Nodo : public Entity3D
 {
 public:
 	DllExport Nodo();
+	DllExport Nodo(const Nodo& origin);
 	DllExport ~Nodo();
 
 	DllExport const vector<Entity3D*> childs() const;

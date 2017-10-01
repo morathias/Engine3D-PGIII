@@ -38,6 +38,8 @@ void Mesh::setMeshData(const ShadedVertex* texVertex,
 {
 	_primitive = ePrimitive;
 	_verts = texVertex;
+	_indices = pusIndices;
+	_indicesCount = uiIndexCount;
 
 	_indexBuffer = _renderer.createIndexBuffer();
 	_vertexBuffer = _renderer.createVertexBuffer(sizeof(ShadedVertex), 1);
@@ -198,6 +200,20 @@ void Mesh::setMaterial(Material& material){
 
 Material& Mesh::getMaterial() const{
 	return *_material;
+}
+
+const ShadedVertex* Mesh::getVertices() const {
+	return _verts;
+}
+int Mesh::getVertexCount(){
+	return _vertexCount;
+}
+int Mesh::getIndexCount(){
+	return _indicesCount;
+}
+
+const unsigned short* Mesh::getIndices() const {
+	return _indices;
 }
 //============================================================================================================
 void Mesh::getNames(vector<string>& names, std::vector<int>& lvlDeep, int lvl){

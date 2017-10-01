@@ -115,8 +115,8 @@ void Debuger::updateScene(){
 }
 //================================================================
 bool Debuger::_activated = true;
-void Debuger::activate(){
-	_activated = true;
+void Debuger::activate(bool show){
+	_activated = show;
 }
 //================================================================
 bool Debuger::_showBoundingBox = false;

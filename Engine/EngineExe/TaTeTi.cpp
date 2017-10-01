@@ -3,7 +3,10 @@
 #include <iostream>
 
 bool TaTeTi::init(Renderer& renderer){
-	_timer = 0.3f;
+	Debuger::activate(false);
+
+	_states = GameStates::Playing;
+	_timer = 0.2f;
 	_start = true;
 	_endGame = false;
 
@@ -22,8 +25,8 @@ bool TaTeTi::init(Renderer& renderer){
 	renderer.addLight(*_light);
 	renderer.enableLight(true, *_light);
 
-	_circulo.setMesh(_root.childs()[1]);
-	_cruz.setMesh(_root.childs()[2]);
+	_circulo.setMesh(_root.childs()[2]);
+	_cruz.setMesh(_root.childs()[1]);
 	
 	x = 1;
 	y = 1;
@@ -34,68 +37,65 @@ bool TaTeTi::init(Renderer& renderer){
 
 	_turn = static_cast<Player>(Random::valueBetweenInts(0,1));
 
+	_mesagge = new ScreenText();
+	_mesagge->create(640, 300, 700, 500, 70, "Bodoni MT Black", "", false, renderer);
+
 	return true;
 }
+
 int full = 0;
 void TaTeTi::frame(Renderer& renderer, Input& input, pg1::Timer& timer){
 	camera->update(renderer);
 
-	switch (_turn)
+	string ganador = "";
+
+	switch (_states)
 	{
-	case Circulo:
-		_circulo.setTargetPos(&_grilla[y][x].getPos());
-		_circulo.stateMachine(input, x, y, timer.timeBetweenFrames() / 1000);
-		break;
-	case Cruz:
-		_cruz.setTargetPos(&_grilla[y][x].getPos());
-		_cruz.stateMachine(input, x, y, timer.timeBetweenFrames() / 1000);
-		break;
-	case Ninguno:
-		break;
-	default:
-		break;
-	}
-	
-	
-	if (input.mouseDown(input.MB_1) && _start && !_grilla[y][x].estaOcupado()){
-		_start = false;
-
-		_grilla[y][x].seOcupo(_turn);
-
-		_endGame = checkWinner();
-
-		full = 0;
-		for (size_t i = 0; i < 3; i++)
-		{
-			for (size_t j = 0; j < 3; j++)
-			{
-				if (_grilla[i][j].estaOcupado())
-					full++;
-			}
-		}
-
-		if (_turn == Player::Circulo && !_endGame){
-			_turn = Player::Cruz;
-		}
-		else if (_turn == Player::Cruz && !_endGame){
-			_turn = Player::Circulo;
-		}
-
-		x = 1;
-		y = 1;
-	}
-
-	if (!_start){
+	case Starting:
+		//movePlayer(input, timer.timeBetweenFrames() / 1000);
+		
 		_timer -= timer.timeBetweenFrames() / 1000;
 
 		if (_timer <= 0){
-			_start = true;
-			_timer = 0.3f;
-		}
-	}
 
-	if (_endGame){
-		string ganador = "";
+			if (_turn == Player::Circulo){
+				_turn = Player::Cruz;
+			}
+			else if (_turn == Player::Cruz){
+				_turn = Player::Circulo;
+			}
+
+			_states = GameStates::Playing;
+			_timer = 0.2f;
+		}
+		break;
+
+	case Playing:
+		//cout << "Playing" << endl;
+		_mesagge->setText("");
+		movePlayer(input, timer.timeBetweenFrames() / 1000);
+
+		if (input.mouseDown(input.MB_1) && !_grilla[y][x].estaOcupado()){
+			_grilla[y][x].seOcupo(_turn);
+
+			placePlayer(renderer);
+
+			_states = checkWinner();
+
+			
+
+			if (isGridFull() && _states != GameStates::Ended)
+				_states = GameStates::Ended;
+			else
+				full = 0;
+
+			x = 1;
+			y = 1;
+		}
+		break;
+
+	case Ended:
+		
 		if (full == 9)
 			ganador = "ninguno";
 
@@ -105,14 +105,18 @@ void TaTeTi::frame(Renderer& renderer, Input& input, pg1::Timer& timer){
 			else
 				ganador = "cruz";
 		}
-		
-			
 
-		cout << "se termino el juego, el ganador es " <<ganador<< endl;
+		_mesagge->setText("se termino el juego,\n el ganador es " + ganador);
+		break;
+
+	default:
+		break;
 	}
-
+	
+	_mesagge->display(renderer);
 	_root.updateBV();
 	_root.draw(renderer, PartiallyInside, camera->getFrustum());
+	
 }
 
 void TaTeTi::fixedFrame(Input& input){
@@ -123,33 +127,99 @@ void TaTeTi::deinit(){
 
 }
 
-bool TaTeTi::checkRow(){
+bool TaTeTi::isGridFull(){
+	full = 0;
+	for (size_t i = 0; i < 3; i++)
+	{
+		for (size_t j = 0; j < 3; j++)
+		{
+			if (_grilla[i][j].estaOcupado())
+				full++;
+		}
+	}
+
+	if (full == 9)
+		return true;
+
+	return false;
+}
+
+void TaTeTi::placePlayer(Renderer& renderer){
+	Mesh* meshToPlace = new Mesh(renderer);
+
+	if (_turn == Player::Circulo){
+		Nodo* nodo = (Nodo*)_root.childs()[2];
+		Mesh* mesh = (Mesh*)nodo->childs()[0];
+
+		meshToPlace->setMeshData(mesh->getVertices(), Primitive::TRIANGLELIST, mesh->getVertexCount(), mesh->getIndices(), mesh->getIndexCount());
+		meshToPlace->setPosZ(0.0f);
+		meshToPlace->setMaterial(mesh->getMaterial());
+	}
+	else if (_turn == Player::Cruz){
+		Nodo* nodo = (Nodo*)_root.childs()[1];
+		Mesh* mesh = (Mesh*)nodo->childs()[0];
+
+		meshToPlace->setMeshData(mesh->getVertices(), Primitive::TRIANGLELIST, mesh->getVertexCount(), mesh->getIndices(), mesh->getIndexCount());
+		meshToPlace->setScale(0.2f, 0.2f, 0.2f);
+		meshToPlace->setPosZ(0.0f);
+		meshToPlace->setMaterial(mesh->getMaterial());
+	}
+
+	meshToPlace->buildAABB();
+	meshToPlace->setPosX(_grilla[y][x].getPos().x());
+	meshToPlace->setPosY(_grilla[y][x].getPos().y());
+	
+
+	meshToPlace->setParent(&_root);
+
+	_root.addChild(*meshToPlace);
+}
+
+void TaTeTi::movePlayer(Input& input, float dt){
+	switch (_turn)
+	{
+	case Circulo:
+		_circulo.setTargetPos(&_grilla[y][x].getPos());
+		_circulo.stateMachine(input, x, y, dt);
+		break;
+	case Cruz:
+		_cruz.setTargetPos(&_grilla[y][x].getPos());
+		_cruz.stateMachine(input, x, y, dt);
+		break;
+	case Ninguno:
+		break;
+	default:
+		break;
+	}
+}
+
+GameStates TaTeTi::checkRow(){
 	size_t row = 0;
 	for (row = 0; row < 3; row++){
 		if (_grilla[y][row].ocupadoPor() != _turn)
-			return false;
+			return GameStates::Starting;
 	}
 
 	cout << "fila ganadora" << endl;
-	return true;
+	return GameStates::Ended;
 }
 
-bool TaTeTi::checkColumn(){
+GameStates TaTeTi::checkColumn(){
 	for (size_t column = 0; column < 3; column++){
 		if (_grilla[column][x].ocupadoPor() != _turn)
-			return false;
+			return GameStates::Starting;
 	}
 
 	cout << "columna ganadora" << endl;
-	return true;
+	return GameStates::Ended;
 }
 
-bool TaTeTi::checkDiagonalLtoR(){
+GameStates TaTeTi::checkDiagonalLtoR(){
 	int row = 0,column = 0;
 
 	while (row < 3){
 		if (_grilla[column][row].ocupadoPor() != _turn)
-			return false;
+			return GameStates::Starting;
 
 		row++;
 		column++;
@@ -157,15 +227,15 @@ bool TaTeTi::checkDiagonalLtoR(){
 
 	cout << "diagonal L ganadora" << endl;
 
-	return true;
+	return GameStates::Ended;
 }
 
-bool TaTeTi::checkDiagonalRtoL(){
+GameStates TaTeTi::checkDiagonalRtoL(){
 	int row = 2, column = 0;
 
 	while (column < 3){
 		if (_grilla[column][row].ocupadoPor() != _turn)
-			return false;
+			return GameStates::Starting;
 
 		row--;
 		column++;
@@ -173,21 +243,21 @@ bool TaTeTi::checkDiagonalRtoL(){
 
 	cout << "diagonal R ganadora" << endl;
 
-	return true;
+	return GameStates::Ended;
 }
 
-bool TaTeTi::checkWinner(){
-	if (checkRow())
-		return true;
+GameStates TaTeTi::checkWinner(){
+	if (checkRow() == GameStates::Ended)
+		return GameStates::Ended;
 
 	if (checkColumn())
-		return true;
+		return GameStates::Ended;
 
 	if (checkDiagonalLtoR())
-		return true;
+		return GameStates::Ended;
 
 	if (checkDiagonalRtoL())
-		return true;
+		return GameStates::Ended;
 
-	return false;
+	return GameStates::Starting;
 }

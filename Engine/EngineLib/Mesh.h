@@ -53,6 +53,11 @@ public:
 
 	void bspKill();
 
+	DllExport const ShadedVertex* getVertices() const;
+	DllExport int getVertexCount();
+	DllExport int getIndexCount();
+	DllExport const unsigned short* getIndices() const;
+
 private:
 	Renderer& _renderer;
 
@@ -64,7 +69,9 @@ private:
 	Texture _texture;
 	Material* _material;
 	const ShadedVertex* _verts;
+	const unsigned short* _indices;
 	int _vertexCount;
+	int _indicesCount;
 
 	RigidBody* _rigidBody;
 

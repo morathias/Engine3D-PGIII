@@ -20,6 +20,7 @@ public:
 	void setTargetPos(Vector2* targetPos);
 
 	void setMesh(Entity3D* mesh);
+	Entity3D& getMesh();
 
 private:
 	Entity3D* _mesh;

@@ -14,6 +14,8 @@ void Jugador::stateMachine(Input& input, int& x, int& y, float dt){
 	switch (_estado)
 	{
 	case Jugador::esparando:
+
+		//cout << "Esperando" << endl;
 		if (input.keyDown(input.KEY_D)){
 			if (x != 2)
 				x++;
@@ -40,7 +42,7 @@ void Jugador::stateMachine(Input& input, int& x, int& y, float dt){
 	case Jugador::moviendose:
 		_timer -= dt;
 
-		cout << dt<<endl;
+		//cout << dt<<endl;
 
 		if (_timer <= 0){
 			//cout << "llego" << endl;
@@ -64,4 +66,7 @@ void Jugador::setTargetPos(Vector2* targetPos){
 void Jugador::setMesh(Entity3D* mesh){
 	_mesh = mesh;
 	_mesh->setPosZ(-0.8f);
+}
+Entity3D& Jugador::getMesh(){
+	return *_mesh;
 }

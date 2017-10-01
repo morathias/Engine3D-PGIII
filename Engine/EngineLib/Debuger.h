@@ -24,7 +24,7 @@ public:
 	static void getBatches();
 
 public:
-	DllExport static void activate();
+	DllExport static void activate(bool show);
 	DllExport static void showSceneGraph(bool show);
 	DllExport static void showBoundignBox(bool show);
 	DllExport static void showBspTree(bool show);

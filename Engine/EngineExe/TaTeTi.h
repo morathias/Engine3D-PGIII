@@ -11,6 +11,12 @@
 
 using namespace std;
 
+enum GameStates{
+	Starting,
+	Playing,
+	Ended
+};
+
 class TaTeTi : public Game{
 public:
 	bool init(Renderer& renderer);
@@ -21,6 +27,8 @@ public:
 	void deinit();
 
 private:
+	GameStates _states;
+
 	Camera* camera;
 	Nodo _root;
 	Importer* _importer;
@@ -31,6 +39,8 @@ private:
 
 	Player _turn;
 
+	ScreenText* _mesagge;
+
 	Jugador _cruz;
 	Jugador _circulo;
 	int _scoreCruz;
@@ -40,12 +50,18 @@ private:
 	bool _endGame;
 	float _timer;
 
-	bool checkRow();
-	bool checkColumn();
-	bool checkDiagonalLtoR();
-	bool checkDiagonalRtoL();
+	void placePlayer(Renderer& renderer);
 
-	bool checkWinner();
+	void movePlayer(Input& input, float dt);
+
+	bool isGridFull();
+
+	GameStates checkRow();
+	GameStates checkColumn();
+	GameStates checkDiagonalLtoR();
+	GameStates checkDiagonalRtoL();
+
+	GameStates checkWinner();
 };
 
 #endif
