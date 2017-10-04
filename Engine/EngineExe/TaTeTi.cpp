@@ -52,6 +52,9 @@ bool TaTeTi::init(Renderer& renderer){
 			cout << "error while creating server" << endl;
 			return false;
 		}
+
+		if (!_server->startListeningData()){}
+		//cout << "no data received" << endl;
 	}
 
 	else{
@@ -109,6 +112,9 @@ void TaTeTi::frame(Renderer& renderer, Input& input, pg1::Timer& timer){
 			}
 
 			if (_server != NULL){
+				if (!_server->startListeningData()){}
+				//cout << "no data received" << endl;
+
 				if (!_server->sendData())
 					cout << "error, data not sent" << endl;
 			}
@@ -130,13 +136,13 @@ void TaTeTi::frame(Renderer& renderer, Input& input, pg1::Timer& timer){
 			y = 1;
 		}
 
-		if (_client != NULL)
-			_client->startListeningData();
+		/*if (_client != NULL)
+			_client->startListeningData();*/
 
-		if (_server != NULL){
+		/*if (_server != NULL){
 			if (!_server->startListeningData()){}
 				//cout << "no data received" << endl;
-		}
+		}*/
 
 		break;
 
