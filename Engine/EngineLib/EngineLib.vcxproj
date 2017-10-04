@@ -103,6 +103,8 @@
     <ClCompile Include="Tile.cpp" />
     <ClCompile Include="TileMap.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
+    <ClCompile Include="UDPClient.cpp" />
+    <ClCompile Include="UDPServer.cpp" />
     <ClCompile Include="Vector2.cpp" />
     <ClCompile Include="vertexbuffer.cpp" />
     <ClCompile Include="Window.cpp" />
@@ -143,6 +145,8 @@
     <ClInclude Include="Tile.h" />
     <ClInclude Include="TileMap.h" />
     <ClInclude Include="tinyxml2.h" />
+    <ClInclude Include="UDPClient.h" />
+    <ClInclude Include="UDPServer.h" />
     <ClInclude Include="Utility.h" />
     <ClInclude Include="Vector2.h" />
     <ClInclude Include="vertexbuffer.h" />

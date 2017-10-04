@@ -8,6 +8,8 @@
 #include "Game.h"
 #include "GridNode.h"
 #include "Jugador.h"
+#include "UDPClient.h"
+#include "UDPServer.h"
 
 using namespace std;
 
@@ -46,9 +48,10 @@ private:
 	int _scoreCruz;
 	int _scoreCirculo;
 
-	bool _start;
-	bool _endGame;
 	float _timer;
+
+	UDPClient* _client;
+	UDPServer* _server;
 
 	void placePlayer(Renderer& renderer);
 

@@ -3,15 +3,16 @@
 #include <iostream>
 
 bool TaTeTi::init(Renderer& renderer){
+	_server = NULL;
+	_client = NULL;
+
 	Debuger::activate(false);
 
 	_states = GameStates::Playing;
 	_timer = 0.2f;
-	_start = true;
-	_endGame = false;
 
 	camera = new Camera();
-	camera->setPos(0, 5.2, -1.2);
+	camera->setPos(0, 5.2f, -1.2f);
 	camera->pitch(1.35);
 
 	_importer = new Importer(renderer);
@@ -38,7 +39,31 @@ bool TaTeTi::init(Renderer& renderer){
 	_turn = static_cast<Player>(Random::valueBetweenInts(0,1));
 
 	_mesagge = new ScreenText();
-	_mesagge->create(640, 300, 700, 500, 70, "Bodoni MT Black", "", false, renderer);
+	_mesagge->create(420, 200, 500, 200, 40, "Bodoni MT Black", "", false, renderer);
+
+	string a;
+	cout << "is this the server?" << endl << "y/n" << endl;
+	cin >> a;
+
+	if (a == "y"){
+		_server = new UDPServer();
+
+		if (!_server->init()){
+			cout << "error while creating server" << endl;
+			return false;
+		}
+	}
+
+	else{
+		_client = new UDPClient();
+
+		if (!_client->init()){
+			cout << "error while creating client" << endl;
+			return false;
+		}
+
+		_client->registerToServer();
+	}
 
 	return true;
 }
@@ -53,7 +78,7 @@ void TaTeTi::frame(Renderer& renderer, Input& input, pg1::Timer& timer){
 	{
 	case Starting:
 		//movePlayer(input, timer.timeBetweenFrames() / 1000);
-		
+
 		_timer -= timer.timeBetweenFrames() / 1000;
 
 		if (_timer <= 0){
@@ -73,16 +98,28 @@ void TaTeTi::frame(Renderer& renderer, Input& input, pg1::Timer& timer){
 	case Playing:
 		//cout << "Playing" << endl;
 		_mesagge->setText("");
+
 		movePlayer(input, timer.timeBetweenFrames() / 1000);
 
 		if (input.mouseDown(input.MB_1) && !_grilla[y][x].estaOcupado()){
+
+			if (_client != NULL){
+				if (!_client->sendData("clicked"))
+					cout << "error, data not sent" << endl;
+			}
+
+			if (_server != NULL){
+				if (!_server->sendData())
+					cout << "error, data not sent" << endl;
+			}
+
+			
+
 			_grilla[y][x].seOcupo(_turn);
 
 			placePlayer(renderer);
 
 			_states = checkWinner();
-
-			
 
 			if (isGridFull() && _states != GameStates::Ended)
 				_states = GameStates::Ended;
@@ -92,6 +129,15 @@ void TaTeTi::frame(Renderer& renderer, Input& input, pg1::Timer& timer){
 			x = 1;
 			y = 1;
 		}
+
+		if (_client != NULL)
+			_client->startListeningData();
+
+		if (_server != NULL){
+			if (!_server->startListeningData()){}
+				//cout << "no data received" << endl;
+		}
+
 		break;
 
 	case Ended:
@@ -107,6 +153,11 @@ void TaTeTi::frame(Renderer& renderer, Input& input, pg1::Timer& timer){
 		}
 
 		_mesagge->setText("se termino el juego,\n el ganador es " + ganador);
+
+		if (_client != NULL){
+			if (!_client->sendData("se termino el juego,\n el ganador es " + ganador))
+				cout << "error, data not sent" << endl;
+		}
 		break;
 
 	default:
@@ -180,11 +231,11 @@ void TaTeTi::movePlayer(Input& input, float dt){
 	{
 	case Circulo:
 		_circulo.setTargetPos(&_grilla[y][x].getPos());
-		_circulo.stateMachine(input, x, y, dt);
+		_circulo.stateMachine(input, x, y, dt, _client);
 		break;
 	case Cruz:
 		_cruz.setTargetPos(&_grilla[y][x].getPos());
-		_cruz.stateMachine(input, x, y, dt);
+		_cruz.stateMachine(input, x, y, dt, _client);
 		break;
 	case Ninguno:
 		break;

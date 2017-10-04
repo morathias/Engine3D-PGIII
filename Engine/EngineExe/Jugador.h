@@ -3,6 +3,7 @@
 
 #include "Entity3D.h"
 #include "input.h"
+#include "UDPClient.h"
 
 class Jugador{
 
@@ -15,7 +16,7 @@ public:
 	Jugador();
 	~Jugador();
 
-	void stateMachine(Input& input, int& x, int& y, float dt);
+	void stateMachine(Input& input, int& x, int& y, float dt, UDPClient* client);
 
 	void setTargetPos(Vector2* targetPos);
 

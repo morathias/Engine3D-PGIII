@@ -100,10 +100,20 @@
     <ClCompile Include="tinyxml2.cpp">
       <Filter>Source\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="BspNode.cpp" />
-    <ClCompile Include="BspTree.cpp" />
-    <ClCompile Include="Light.cpp" />
-    <ClCompile Include="Material.cpp" />
+    <ClCompile Include="UDPServer.cpp" />
+    <ClCompile Include="UDPClient.cpp" />
+    <ClCompile Include="BspNode.cpp">
+      <Filter>Source\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="BspTree.cpp">
+      <Filter>Source\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Light.cpp">
+      <Filter>Source\Entities</Filter>
+    </ClCompile>
+    <ClCompile Include="Material.cpp">
+      <Filter>Source\Entities</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Animation.h">
@@ -211,10 +221,20 @@
     <ClInclude Include="tinyxml2.h">
       <Filter>Headers\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="BspNode.h" />
-    <ClInclude Include="BspTree.h" />
-    <ClInclude Include="Light.h" />
-    <ClInclude Include="Material.h" />
+    <ClInclude Include="UDPServer.h" />
+    <ClInclude Include="UDPClient.h" />
+    <ClInclude Include="BspNode.h">
+      <Filter>Headers\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="BspTree.h">
+      <Filter>Headers\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Light.h">
+      <Filter>Headers\Entities</Filter>
+    </ClInclude>
+    <ClInclude Include="Material.h">
+      <Filter>Headers\Entities</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="input.inl">
