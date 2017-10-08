@@ -23,6 +23,9 @@ public:
 	void setMesh(Entity3D* mesh);
 	Entity3D& getMesh();
 
+	void setTurn(int turn);
+	int getTurn();
+
 private:
 	Entity3D* _mesh;
 	estados _estado;
@@ -31,6 +34,7 @@ private:
 
 	float _timer;
 	
+	int _turn;
 };
 
 #endif

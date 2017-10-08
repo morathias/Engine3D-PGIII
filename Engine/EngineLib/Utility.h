@@ -73,6 +73,9 @@ public:
 				index = 0;
 		}
 
+		if (index == keyWord.size())
+			return true;
+
 		return false;
 	}
 

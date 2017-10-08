@@ -86,3 +86,10 @@ void Jugador::setMesh(Entity3D* mesh){
 Entity3D& Jugador::getMesh(){
 	return *_mesh;
 }
+
+void Jugador::setTurn(int turn){
+	_turn = turn;
+}
+int Jugador::getTurn(){
+	return _turn;
+}

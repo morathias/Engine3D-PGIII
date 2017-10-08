@@ -14,13 +14,16 @@ public:
 	DllExport ~UDPClient();
 
 	DllExport bool init();
-	DllExport bool startListeningData();
+	DllExport string startListeningData();
 	DllExport bool sendData(string data);
 
 	DllExport bool registerToServer();
+	DllExport int getId() const;
 
 private:
 	int _socket, _socketLength;
+
+	int _id;
 
 	char *_buffer;
 };

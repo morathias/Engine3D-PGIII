@@ -8,6 +8,8 @@
 
 using namespace std;
 
+struct Client;
+
 class UDPServer
 {
 public:
@@ -15,8 +17,9 @@ public:
 	DllExport ~UDPServer();
 
 	DllExport bool init();
-	DllExport bool startListeningData();
+	DllExport string startListeningData();
 	DllExport bool sendData();
+	DllExport bool sendData(string data);
 	DllExport bool sendData(int clientIndex);
 
 	DllExport void setMaxClientsCount(int maxClientCount);
@@ -29,7 +32,7 @@ private:
 	char *buffer;
 
 	int _clientCount, _maxClientCount;
-	map<unsigned int, unsigned int> _clients;
+	map<unsigned int, Client*> _clients;
 };
 
 #endif

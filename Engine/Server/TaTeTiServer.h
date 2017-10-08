@@ -21,6 +21,8 @@ private :
 
 	ScreenText *_text;
 
+	int _turn;
+
 };
 
 #endif

@@ -8,6 +8,7 @@
 #include "Game.h"
 #include "GridNode.h"
 #include "Jugador.h"
+#include "Rival.h"
 #include "UDPClient.h"
 #include "UDPServer.h"
 
@@ -16,6 +17,7 @@ using namespace std;
 enum GameStates{
 	Starting,
 	Playing,
+	Waiting,
 	Ended
 };
 
@@ -43,11 +45,9 @@ private:
 
 	ScreenText* _mesagge;
 
-	Jugador _cruz;
-	Jugador _circulo;
-	int _scoreCruz;
-	int _scoreCirculo;
-
+	Jugador _jugador;
+	Rival _rival;
+	int _id;
 	float _timer;
 
 	UDPClient* _client;
@@ -56,6 +56,7 @@ private:
 	void placePlayer(Renderer& renderer);
 
 	void movePlayer(Input& input, float dt);
+	void moveRival(Input& input, float dt, string packet);
 
 	bool isGridFull();
 

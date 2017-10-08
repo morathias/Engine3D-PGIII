@@ -1,6 +1,7 @@
 #include "UDPServer.h"
 
 #include <winsock2.h>
+#include <WS2tcpip.h>
 #include<stdio.h>
 
 #include "Utility.h"
@@ -12,6 +13,11 @@
 #define BUFLEN 512  //Max length of buffer
 #define PORT 8888   //The port on which to listen for incoming data
 
+struct Client{
+	char* addres;
+	USHORT port;
+};
+
 namespace UDP{
 	unsigned int _socket;
 	struct sockaddr_in _server, si_other;
@@ -19,6 +25,7 @@ namespace UDP{
 
 UDPServer::UDPServer(){
 	buffer = new char[BUFLEN];
+	_clientCount = 0;
 }
 
 UDPServer::~UDPServer(){
@@ -49,6 +56,7 @@ bool UDPServer::init(){
 	printf("Socket created.\n");
 
 	UDP::_server.sin_family = AF_INET;
+	char* serverAddres = "190.12.106.242";
 	UDP::_server.sin_addr.s_addr = INADDR_ANY;
 	UDP::_server.sin_port = htons(PORT);
 
@@ -64,10 +72,12 @@ bool UDPServer::init(){
 	}
 	puts("Bind done");
 
+	printf("server address: %s", inet_ntoa(UDP::_server.sin_addr));
+
 	return true;
 }
 
-bool UDPServer::startListeningData(){
+string UDPServer::startListeningData(){
 	//printf("Waiting for data...");
 	//fflush(stdout);
 
@@ -78,18 +88,38 @@ bool UDPServer::startListeningData(){
 	if ((_recievedLength = recvfrom(UDP::_socket, buffer, BUFLEN, 0, (struct sockaddr *) &UDP::si_other, &_socketLength)) == SOCKET_ERROR)
 	{
 		//printf("recvfrom() %i failed with error code : %d", _recievedLength, WSAGetLastError());
-		return false;
+		return "false";
 	}
 
 	//print details of the client/peer and the data received
 	printf("Received packet from %s:%d\n", inet_ntoa(UDP::si_other.sin_addr), ntohs(UDP::si_other.sin_port));
 	printf("Data: %s\n", buffer);
 
-	if (Utility::containsWord(buffer, "REGISTER")){}
-		//_clients.push_back(ntohs(UDP::si_other.sin_port));
 
-	
-	return true;
+	bool registerClient = Utility::containsWord(buffer, "REGISTER");
+	if ( registerClient){
+		Client* clientInfo = new Client();
+
+		char* clientAddress = new char[32];
+		strcpy(clientAddress, inet_ntoa(UDP::si_other.sin_addr));
+
+		clientInfo->addres = clientAddress;
+		clientInfo->port = UDP::si_other.sin_port;
+
+		_clients.insert(pair<unsigned int, Client*>(_clientCount, clientInfo));
+
+		printf("client: %i added, ip: %s", _clientCount, _clients[_clientCount]->addres);
+
+		_clientCount++;
+
+		return "added client correctly";
+	}
+
+	if (Utility::containsWord(buffer, "GET_ID")){
+		sendData(to_string(_clientCount));
+	}
+
+	return buffer;
 }
 
 bool UDPServer::sendData(){
@@ -101,7 +131,27 @@ bool UDPServer::sendData(){
 	return true;
 }
 
+bool UDPServer::sendData(string data){
+	if (sendto(UDP::_socket, data.c_str(), strlen(data.c_str()), 0, (struct sockaddr*) &UDP::si_other, _socketLength) == SOCKET_ERROR)
+	{
+		printf("sendto() failed with error code : %d", WSAGetLastError());
+		return false;
+	}
+	return true;
+}
+
 bool UDPServer::sendData(int clientIndex){
+	if (_clients.empty())
+		return false;
+
+	if (clientIndex >= _clients.size())
+		return false;
+
+	UDP::si_other.sin_addr.S_un.S_addr = inet_addr(_clients[clientIndex]->addres);
+	UDP::si_other.sin_port = _clients[clientIndex]->port;
+
+	_socketLength = sizeof(UDP::si_other);
+
 	if (sendto(UDP::_socket, buffer, _recievedLength, 0, (struct sockaddr*) &UDP::si_other, _socketLength) == SOCKET_ERROR)
 	{
 		printf("sendto() failed with error code : %d", WSAGetLastError());
@@ -111,7 +161,7 @@ bool UDPServer::sendData(int clientIndex){
 }
 
 void UDPServer::setMaxClientsCount(int maxClientCount){
-
+	_maxClientCount = maxClientCount;
 }
 
 int UDPServer::getMaxClientCount() const{

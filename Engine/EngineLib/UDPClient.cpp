@@ -3,10 +3,10 @@
 
 #include<stdio.h>
 #include<winsock2.h>
+#include <fstream>
 
 #pragma comment(lib,"ws2_32.lib") //Winsock Library
 
-#define SERVER "127.0.0.1"  //ip address of udp server
 #define BUFLEN 512  //Max length of buffer
 #define PORT 8888   //The port on which to listen for incoming data
 
@@ -16,8 +16,8 @@ UDPClient::UDPClient()
 {
 	_socketLength = sizeof(si_other);
 	_buffer = new char[BUFLEN];
+	_id = 0;
 }
-
 
 UDPClient::~UDPClient(){
 	delete[] _buffer;
@@ -53,22 +53,36 @@ bool UDPClient::init(){
 	memset((char *)&si_other, 0, sizeof(si_other));
 	si_other.sin_family = AF_INET;
 	si_other.sin_port = htons(PORT);
-	si_other.sin_addr.S_un.S_addr = inet_addr(SERVER);
+
+	string serverAddres;
+	ifstream addressFile("ServerAddres.txt");
+	if (addressFile.is_open()){
+		getline(addressFile, serverAddres);
+		addressFile.close();
+	}
+	
+	si_other.sin_addr.S_un.S_addr = inet_addr(serverAddres.c_str());
 
 	return true;
 }
 
-bool UDPClient::startListeningData(){
+string UDPClient::startListeningData(){
 	memset(_buffer, '\0', BUFLEN);
 	
 	if (recvfrom(_socket, _buffer, BUFLEN, 0, (struct sockaddr *) &si_other, &_socketLength) == SOCKET_ERROR)
 	{
-		printf("recvfrom() failed with error code : %d", WSAGetLastError());
-		return false;
+		//printf("recvfrom() failed with error code : %d", WSAGetLastError());
+		return "false";
 	}
 
 	printf("Data: %s\n", _buffer);
-	return true;
+
+	if (isdigit(_buffer[0])){
+		printf("setting id");
+		_id = atoi(_buffer);
+	}
+
+	return _buffer;
 }
 
 bool UDPClient::sendData(string data){
@@ -83,4 +97,8 @@ bool UDPClient::sendData(string data){
 
 bool UDPClient::registerToServer(){
 	return sendData("REGISTER");
+}
+
+int UDPClient::getId() const{
+	return _id;
 }
